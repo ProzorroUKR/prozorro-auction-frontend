@@ -1,10 +1,20 @@
-FROM python:3.7-slim
-RUN mkdir /app
-WORKDIR /app
-RUN apt-get update && apt-get install -y --no-install-recommends git && apt-get purge -y --auto-remove && rm -rf /var/lib/apt/lists/*
-ADD requirements.txt /app/
-RUN pip install -r requirements.txt
-COPY ./src /app
-ENV API_OPT_FIELDS="status,procurementMethodType"
-ENTRYPOINT ["python", "-m"]
-CMD ["prozorro_auction.api.main"]
+FROM node:9.6.1 AS nodejs
+WORKDIR /build/
+ENV PATH /build/node_modules/.bin:/build:$PATH
+
+COPY package.json .
+COPY yarn.lock .
+RUN npm run develop
+RUN ls -l /build/node_modules
+COPY . .
+RUN npm run build
+
+
+FROM nginx as prod
+
+COPY --from=nodejs /build/build /app
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+
+FROM prod

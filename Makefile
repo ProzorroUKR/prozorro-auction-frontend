@@ -1,6 +1,4 @@
-.default: update-frontend
+.default: update
 
-
-update-frontend:
-	cd frontend && npm run build && cd .. && docker-compose restart frontend
-
+update:
+	npm run build && docker-compose restart frontend
