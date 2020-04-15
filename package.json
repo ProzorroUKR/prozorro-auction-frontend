@@ -22,7 +22,7 @@
     "mathjs": "2.3.0",
     "moment-timezone": "0.2.5",
     "ua-parser-js": "0.7.10",
-    "yarn": "^1.21.1"
+    "yarn": "^1.22.4"
   },
   "scripts": {
     "develop": "npm install yarn --ignore-scripts && yarn --ignore-scripts",

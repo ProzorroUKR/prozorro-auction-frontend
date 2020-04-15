@@ -2,6 +2,10 @@
     "modules":{
 		"tenders": {
 			"js": [
+              "src/app/libs/ua-parser.min.js",
+              "src/app/libs/moment.min.js",
+              "src/app/libs/moment-locale-uk.js",
+              "src/app/libs/math.min.js",
               "src/app/auction.js",
               "src/app/config.js",
               "src/app/filters/*.js",
@@ -28,18 +32,21 @@
         }
 	},
     "js": [
+        "src/app/libs/angular.js",
+        "src/app/libs/jquery.min.js",
         "node_modules/angular-cookies/angular-cookies.js",
         "node_modules/angular-ellipses/src/truncate.js",
         "node_modules/angular-timer/dist/angular-timer.js",
         "node_modules/angular-translate/dist/angular-translate.js",
+        "node_modules/angular-ui-bootstrap/dist/ui-bootstrap.js",
+        "node_modules/angular-ui-bootstrap/dist/ui-bootstrap-tpls.js",
         "node_modules/angular-translate/dist/angular-translate-storage-cookie/angular-translate-storage-cookie.js",
         "node_modules/angular-translate/dist/angular-translate-storage-local/angular-translate-storage-local.js",
-        "node_modules/angular-growl-v2/build/angular-growl.js"
+        "src/app/libs/angular-growl.min.js"
     ],
 	"styles": [
 	    "node_modules/angular-growl-v2/build/angular-growl.css",
-        "src/assets/css/bootstrap.min.css",
-        "src/assets/css/starter-template.css"
+        "src/assets/css/**/*.css"
     ],
     "assets": "src/assets/base/**/*.*",
     "img": {
