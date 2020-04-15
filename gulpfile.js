@@ -131,3 +131,14 @@ gulp.task('default', ['build:buildout']);
 gulp.task('clean', function () {
   del.sync([config.buildDir + '*/**', config.outDir + '*/**'], {force: true});
 });
+
+gulp.task('watch', ['build'],function () {
+  gulp.watch(config.assets, ['build']);
+  gulp.watch(config.js, ['build']);
+  gulp.watch(config.modules.tenders.js, ['build']);
+  gulp.watch(config.modules.index.js, ['build']);
+  gulp.watch(config.modules.archive.js, ['build']);
+  gulp.watch('src/assets/css/starter-template.less', ['build']);
+  gulp.watch(config.styles, ['build']);
+  gulp.watch('templates/*.html', ['build']);
+});
