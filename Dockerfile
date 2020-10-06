@@ -15,6 +15,9 @@ FROM nginx as prod
 COPY --from=nodejs /build/build /app
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 80
+RUN useradd -m -u 10000 -U user
+RUN chown -R user:user /app /etc/nginx /var/cache/nginx /run
+EXPOSE 8080
 
 FROM prod
+USER user
