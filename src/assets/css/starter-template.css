@@ -47,6 +47,9 @@ body {
   padding: 0;
   vertical-align: middle;
 }
+.header-auction-item p {
+  display: inline-block;
+}
 .header-auction-item-visual {
   display: block;
   max-height: 61px;
@@ -93,7 +96,6 @@ body {
   border-radius: 6px;
   color: #fff;
   text-align: center;
-  width: 80px;
   padding: 0 6px;
 }
 .round-number {
