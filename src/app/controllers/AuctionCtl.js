@@ -6,10 +6,22 @@ angular.module('auction').controller('AuctionController',[
   $timeout, $http, $log, $cookies, $window,
   $rootScope, $location, $translate, $filter, growl, growlMessages, $aside, $q)
   {
-    var base_url = window.location.href.replace(window.location.search, '');
-    var evtSrc = '';
-    var response_timeout = '';
-    var setDocumentLang = (lang) => document.documentElement.lang = lang;
+    /**
+     * @type {Object.<LanguageKey, LocaleKey>}
+     */
+    var localesMap = {
+      uk: 'uk_UA',
+      ru: 'ru_RU',
+      en: 'en_US',
+    };
+
+    /**
+     * @param {LanguageKey} langKey
+     */
+    var setDocumentLang = function(langKey) {
+      document.documentElement.lang = langKey;
+      document.querySelector('[http-equiv="Content-Language"]').setAttribute('content', localesMap[langKey]);
+    }
 
     if (AuctionUtils.inIframe() && 'localhost'!= location.hostname) {
       $log.error('Starts in iframe');
@@ -18,6 +30,10 @@ angular.module('auction').controller('AuctionController',[
     }
 
     AuctionConfig.auction_doc_id = window.location.pathname.replace('/tenders/', '');
+
+    if ($cookies.get('client_id') === undefined) {
+      $cookies.put('client_id', AuctionUtils.generateUUID());
+    }
 
     $rootScope.lang = 'uk';
     $rootScope.normilized = false;
@@ -30,11 +46,9 @@ angular.module('auction').controller('AuctionController',[
     $rootScope.default_http_error_timeout = 500;
     $rootScope.query_params = AuctionUtils.parseQueryString(location.search);
     $rootScope.http_error_timeout = $rootScope.default_http_error_timeout;
-    if( ! $cookies.get("client_id")) {
-        $cookies.put("client_id", AuctionUtils.generateUUID());
-    }
-    $rootScope.client_id = $cookies.get("client_id");
+    $rootScope.client_id = $cookies.get('client_id');
     $rootScope.browser_client_id = AuctionUtils.generateUUID();
+
     window.onunload = function () {
       $log.info("Close window");
     }
@@ -46,12 +60,14 @@ angular.module('auction').controller('AuctionController',[
     } else {
       $log.context["TENDER_ID"] = AuctionConfig.auction_doc_id;
     }
+
     $log.info({
       message: "Start session",
       client_id: $rootScope.client_id,
       browser_client_id: $rootScope.browser_client_id,
       user_agent: navigator.userAgent
     })
+
     $rootScope.change_view = function() {
       if ($rootScope.bidder_coeficient) {
         $rootScope.normilized = !$rootScope.normilized;
@@ -106,11 +122,15 @@ angular.module('auction').controller('AuctionController',[
       }
     });
 
+    /**
+     * @param {LanguageKey} langKey
+     */
     $rootScope.changeLanguage = function(langKey) {
       $translate.use(langKey);
       $rootScope.lang = langKey;
       setDocumentLang(langKey);
     };
+
     // Bidding form msgs
     $rootScope.closeAlert = function(msg_id) {
       for (var i = 0; i < $rootScope.alerts.length; i++) {
