@@ -29,7 +29,7 @@
 
                         <span ng-if="bid_info.bidder_id == bidder_id && auction_doc.auction_type == 'meat' && auction_doc.current_stage < (auction_doc.stages.length - 1)">
                             <span class="label-price normalized-price">
-                                <span class="price-type" translate>Normilized Price</span>
+                                <span class="price-type" translate>Normalized Price</span>
                                 {{ bid_info['amount_features']|fraction }}
                                 <span class="amount-currency" ng-if="!angular.isUndefined(bid_info['amount_features'])">{{ auction_doc.minimalStep.currency|translate }}</span>
                             </span>
@@ -42,7 +42,7 @@
 
                         <span ng-if="bid_info.bidder_id != bidder_id && auction_doc.auction_type == 'meat' && auction_doc.current_stage < (auction_doc.stages.length - 1)">
                             <span class="label-price">
-                                <span class="price-type" translate>Normilized Price</span>
+                                <span class="price-type" translate>Normalized Price</span>
                                 {{ bid_info['amount_features']|fraction }}
                                 <span class="amount-currency" ng-if="!angular.isUndefined(bid_info['amount_features'])">{{ auction_doc.minimalStep.currency|translate }}</span>
                             </span>

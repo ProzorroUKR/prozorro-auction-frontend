@@ -49,7 +49,7 @@ angular.module('auction').factory('AuctionUtils', [
             return {
               'countdown': false,
               'start_time': ends_time,
-              'msg': 'Аuction was completed',
+              'msg': 'Auction was completed',
               'msg_ending': 'Waiting for the disclosure of the participants\' names'
             };
           }
@@ -62,7 +62,7 @@ angular.module('auction').factory('AuctionUtils', [
             return {
               'countdown': false,
               'start_time': ends_time,
-              'msg': 'Аuction was completed'
+              'msg': 'Auction was completed'
             };
           }
           if (bidder_id) {
