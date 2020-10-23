@@ -15,7 +15,7 @@
                                     <span ng-init="max_bid_amount()" class="max_bid_amount" ng-if="auction_doc.auction_type == 'meat'"><span>{{ calculated_max_bid_amount|floor:2 }}</span> {{'or lower'|translate}}</span>
                                 </div>
                                 <div class="col-md-5 col-sm-5 normalized-price-group">
-                                    <span translate>Normilized Price</span>
+                                    <span translate>Normalized Price</span>
                                     <span ng-init="max_bid_amount()" class="max_bid_amount"><span>{{ calculated_max_bid_amount/bidder_coeficient|floor:2 }}</span> {{'or lower'|translate}}</span>
                                 </div>
                             </div>
@@ -26,11 +26,11 @@
                                     <input id="bid-amount-input" ng-disabled="!allow_bidding" min="0" ng-change="calculate_bid_temp()" class="form-control" id="bid" name="bid" ng-model="$root.form.bid" required format>
                                 </div>
                                 <div class="bidder-coeficient-wrap col-md-2 col-sm-2 col-xs-11" ng-if="auction_doc.auction_type == 'meat'">
-                                    <span translate>Bidder Coeficient</span>
+                                    <span translate>Bidder Coefficient</span>
                                     <span id="bid-amount-description" ng-if="bidder_coeficient && !$root.normilized" uib-tooltip="x {{bidder_coeficient| fraction_string}}" tooltip-trigger="focus"> {{bidder_coeficient| fraction}}</span>
                                 </div>
                                 <div class="normalized-price-group col-xs-11 col-md-3 col-sm-3" ng-class="{'not-allow-bidding': !allow_bidding}" ng-if="auction_doc.auction_type == 'meat' ">
-                                    <span translate>Normilized Price</span>
+                                    <span translate>Normalized Price</span>
                                     <span ng-init="max_bid_amount()" class="max_bid_amount" ><span>{{ calculated_max_bid_amount/bidder_coeficient|floor:2 }} </span> {{'or lower'|translate}}</span>
                                     <input id="bid-amount-full-price" ng-disabled="!allow_bidding" ng-if="bidder_coeficient && !$root.normilized" ng-change="calculate_full_price_temp()" min="0" class="form-control" id="full_price" name="full_price" ng-model="$root.form.full_price" required format>
                                 </div>
@@ -66,7 +66,7 @@
                                         <abbr title="{{ 'Current energy efficiency value of energy service contract' | translate }}">{{ 'Current EIESC' | translate }}</abbr> <span id="current-npv">{{ current_npv | fraction }}</span>;
                                     </span>
                                     <span ng-if="auction_doc.auction_type == 'meat'">
-                                        {{ 'Bidder Coeficient' | translate }}
+                                        {{ 'Bidder Coefficient' | translate }}
                                         <span id="bid-amount-description" ng-if="bidder_coeficient && !$root.normilized" uib-tooltip="x {{bidder_coeficient| fraction_string}}" tooltip-trigger="focus">
                                             {{bidder_coeficient| fraction}}
                                         </span>
@@ -97,7 +97,7 @@
                                     <span ng-if="auction_doc.auction_type == 'default'"><abbr title="{{ 'Current energy efficiency value of energy service contract' | translate }}">{{ 'Current EIESC' | translate }}</abbr> <b id="current-npv">{{ current_npv | fraction }}</b></span>
                                     <span ng-if="auction_doc.auction_type == 'meat'">
                                         <span class="amount-header">
-                                            <abbr title="{{ 'Calculated energy efficiency value of energy service contract' | translate }}">{{'Normilized EIESC'|translate}}</abbr>
+                                            <abbr title="{{ 'Calculated energy efficiency value of energy service contract' | translate }}">{{'Normalized EIESC'|translate}}</abbr>
                                             <span ng-init="max_bid_amount()" class="small">
                                                 ({{ calculated_max_bid_amount * bidder_coeficient|fraction }} {{'or higher'|translate}})
                                             </span>
