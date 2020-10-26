@@ -1,9 +1,9 @@
 angular.module('auction').controller('AuctionController',[
   'AuctionConfig', 'AuctionUtils',
-  '$timeout', '$http', '$log', '$cookies', '$window',
+  '$timeout', '$interval', '$http', '$log', '$cookies', '$window',
   '$rootScope', '$location', '$translate', '$filter', 'growl', 'growlMessages', '$aside', '$q',
   function(AuctionConfig, AuctionUtils,
-  $timeout, $http, $log, $cookies, $window,
+  $timeout, $interval, $http, $log, $cookies, $window,
   $rootScope, $location, $translate, $filter, growl, growlMessages, $aside, $q)
   {
     /**
@@ -103,23 +103,71 @@ angular.module('auction').controller('AuctionController',[
       }
     });
     /*      Time tick events    */
-    $rootScope.$on('timer-tick', function(event) {
-      if (($rootScope.auction_doc) && (event.targetScope.timerid == 1)) {
-        if (((($rootScope.info_timer || {}).msg || "") === 'until your turn') && (event.targetScope.minutes == 1) && (event.targetScope.seconds == 50)) {
-          $rootScope.check_authorization();
-        };
-        $timeout(function() {
-          $rootScope.time_in_title = event.targetScope.days ? (event.targetScope.days + $filter('translate')('days') + " ") : "";
-          $rootScope.time_in_title += event.targetScope.hours ? (AuctionUtils.pad(event.targetScope.hours) + ":") : "";
-          $rootScope.time_in_title += (AuctionUtils.pad(event.targetScope.minutes) + ":");
-          $rootScope.time_in_title += (AuctionUtils.pad(event.targetScope.seconds) + " ");
-        }, 10);
-      } else {
-        var date = new Date();
-        $rootScope.seconds_line = AuctionUtils.polarToCartesian(24, 24, 16, (date.getSeconds() / 60) * 360);
-        $rootScope.minutes_line = AuctionUtils.polarToCartesian(24, 24, 16, (date.getMinutes() / 60) * 360);
-        $rootScope.hours_line = AuctionUtils.polarToCartesian(24, 24, 14, (date.getHours() / 12) * 360);
+    $rootScope.title_timer = function() {
+      const SECOND = 1000;
+      const DELIMITER_SPACE = ' ';
+      const DELIMITER_COLON = ':';
+      const NULLABLE_DAYS = '0';
+      const NULLABLE_HOURS = '00'; // with pad
+
+      let countdown = $rootScope.info_timer ? $rootScope.info_timer.countdown : 0;
+      let titleText = [];
+      let interval = $interval(setTime, SECOND);
+
+      setTime();
+
+      function setTime() {
+        const {days, hours, minutes, seconds} = AuctionUtils.getTimeByCountdown(countdown);
+        titleText = [];
+
+        if (days !== NULLABLE_DAYS) {
+          titleText = titleText.concat([
+            days,
+            DELIMITER_SPACE,
+            $filter('translate')('days'),
+            DELIMITER_SPACE,
+          ]);
+        }
+
+        if (hours !== NULLABLE_HOURS) {
+          titleText = titleText.concat([
+            hours,
+            DELIMITER_COLON,
+          ]);
+        }
+
+        titleText = titleText.concat([
+          minutes,
+          DELIMITER_COLON,
+          seconds,
+        ]);
+
+        $rootScope.time_in_title = titleText.join('');
+
+        if (--countdown < 0) {
+          $interval.cancel(interval);
+          interval = undefined;
+        }
       }
+    }
+
+    $rootScope.$on('timer-tick', function(event) {
+      const date = new Date();
+
+      if ($rootScope.auction_doc && event.targetScope.timerid === 1) {
+        const infoTimer = $rootScope.info_timer || {};
+        const isUntilYourTurn = (infoTimer.msg || '') === 'until your turn';
+
+        if (isUntilYourTurn && event.targetScope.minutes === 1 && event.targetScope.seconds === 50) {
+          $rootScope.check_authorization();
+        }
+
+        return;
+      }
+
+      $rootScope.seconds_line = AuctionUtils.polarToCartesian(24, 24, 16, (date.getSeconds() / 60) * 360);
+      $rootScope.minutes_line = AuctionUtils.polarToCartesian(24, 24, 16, (date.getMinutes() / 60) * 360);
+      $rootScope.hours_line = AuctionUtils.polarToCartesian(24, 24, 14, (date.getHours() / 12) * 360);
     });
 
     /**
@@ -167,28 +215,36 @@ angular.module('auction').controller('AuctionController',[
       return $rootScope.view_bids_form;
     };
 
-    $rootScope.sync_times_with_server = function(start) {
+    $rootScope.sync_times_with_server = function(callback) {
       $http.get('/get_current_server_time', {
         'params': {
           '_nonce': Math.random().toString()
         }
       }).then(function(data) {
         $rootScope.last_sync = new Date(new Date(data.headers().date));
+
         $rootScope.info_timer = AuctionUtils.prepare_info_timer_data(
             $rootScope.last_sync,
             $rootScope.auction_doc,
             $rootScope.bidder_id,
-            $rootScope.Rounds
+            $rootScope.Rounds,
         );
+
         $log.debug({
           message: "Info timer data:",
-          info_timer: $rootScope.info_timer
+          info_timer: $rootScope.info_timer,
         });
-        $rootScope.progres_timer = AuctionUtils.prepare_progress_timer_data($rootScope.last_sync, $rootScope.auction_doc);
+
+        $rootScope.progres_timer = AuctionUtils.prepare_progress_timer_data(
+          $rootScope.last_sync,
+          $rootScope.auction_doc,
+        );
+
         $log.debug({
           message: "Progres timer data:",
           progress_timer: $rootScope.progres_timer
         });
+
         if ($rootScope.auction_doc.current_stage == -1) {
           if ($rootScope.progres_timer.countdown_seconds < 900) {
             $rootScope.start_changes_feed = true;
@@ -199,10 +255,15 @@ angular.module('auction').controller('AuctionController',[
             }, ($rootScope.progres_timer.countdown_seconds - 900) * 1000);
           }
         }
-      }, function(data, status, headers, config) {
+
+        if (callback !== undefined) {
+          callback();
+        }
+      }, function() {
         $log.error("get_current_server_time error");
       });
     };
+
     $rootScope.warning_post_bid = function(){
       growl.error('Unable to place a bid. Check that no more than 2 auctions are simultaneously opened in your browser.');
     };
@@ -747,7 +808,7 @@ angular.module('auction').controller('AuctionController',[
         $rootScope.allow_bidding = true;
       }
       $rootScope.auction_doc = new_doc;
-      $rootScope.sync_times_with_server();
+      $rootScope.sync_times_with_server($rootScope.title_timer);
       $rootScope.calculate_rounds();
       $rootScope.calculate_minimal_bid_amount();
       $rootScope.scroll_to_stage();

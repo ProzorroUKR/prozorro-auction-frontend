@@ -33,8 +33,6 @@ services:
         environment:
             - MONGODB_URL=mongodb://root:example@mongo:27017/?replicaSet=rs0
             - PYTHONUNBUFFERED=1
-        volumes:
-            - ./src:/app
         ports:
             - 8000:8000
         depends_on:
@@ -53,8 +51,6 @@ services:
             - FEED_STEP_INTERVAL=5
             - API_LIMIT=50
         command: ["prozorro_auction.databridge.main"]
-        volumes:
-            - ./src:/app
         depends_on:
             - mongo
         networks:
@@ -72,8 +68,6 @@ services:
             - DS_USER=test
             - DS_PASSWORD=test
         command: ["prozorro_auction.chronograph.main"]
-        volumes:
-            - ./src:/app
         depends_on:
             - mongo
         networks:

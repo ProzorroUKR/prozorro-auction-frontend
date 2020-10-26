@@ -4,8 +4,32 @@ angular.module('auction').factory('AuctionUtils', [
     // Format msg for timer
     'use strict';
 
+    const SECOND = 1000;
+    const MINUTE = SECOND * 60;
+    const HOUR = MINUTE * 60;
+    const DAY = HOUR * 24;
+
+    const pipe = (...funcs) => v => {
+      return funcs.reduce((res, func) => {
+        return func(res);
+      }, v);
+    };
+
     function pad(d) {
       return (d < 10) ? '0' + d.toString() : d.toString();
+    }
+
+    /**
+     * @param {number} countdown - milliseconds
+     * @returns {{hours: string, seconds: string, minutes: string, days: string}}
+     */
+    function getTimeByCountdown(countdown) {
+      return {
+        days: Math.floor(countdown / DAY).toString(),
+        hours: pipe(Math.floor, pad)((countdown / HOUR) % 24),
+        minutes: pipe(Math.floor, pad)(countdown / 60),
+        seconds: pipe(Math.floor, pad)(countdown % 60),
+      }
     }
 
     function prepare_info_timer_data(current_time, auction, bidder_id, Rounds) {
@@ -172,7 +196,6 @@ angular.module('auction').factory('AuctionUtils', [
       }
       return "";
     }
-
     // Get round data
     function get_round_data(pause_index, auction_doc, Rounds) {
       if (pause_index == -1) {
@@ -323,6 +346,13 @@ angular.module('auction').factory('AuctionUtils', [
       }
     }
 
+      /**
+       * @param {number} centerX
+       * @param {number} centerY
+       * @param {number} radius
+       * @param {number} angleInDegrees
+       * @returns {{x: number, y: number}}
+       */
     function polarToCartesian(centerX, centerY, radius, angleInDegrees) {
       var angleInRadians = (angleInDegrees - 90) * Math.PI / 180.0;
 
@@ -478,6 +508,8 @@ angular.module('auction').factory('AuctionUtils', [
       'generateUUID': generateUUID,
       'detectIE': detectIE,
       'UnsupportedBrowser': UnsupportedBrowser,
-      'npv': npv
+      'npv': npv,
+      'pipe': pipe,
+      'getTimeByCountdown': getTimeByCountdown,
     };
 }]);
