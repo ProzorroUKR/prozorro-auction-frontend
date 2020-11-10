@@ -119,7 +119,6 @@ angular.module('auction').factory('AuctionUtils', [
               if (auction.current_stage < all_rounds[i]) {
                 for (var index = auction.current_stage; index <= all_rounds[i]; index++) {
                   if ((auction.stages[index].bidder_id) && (auction.stages[index].bidder_id === bidder_id)) {
-                    log('i in all_rounds');
                     return {
                       'countdown': ((new Date(auction.stages[index].start) - current_time) / 1000) + Math.random(),
                       'start_time': false,
