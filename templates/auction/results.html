@@ -24,7 +24,7 @@
             <i class="stage-icon"></i>
             <div class="stage-info">
                 <div class="stage-info-lining" ng-class="{'auction-with-two-prices': auction_doc.auction_type == 'meat' && bid_info.bidder_id == bidder_id}">
-                    <span class="stage-info-item stage-label" ng-if="bid_info.bidder_id != bidder_id ">{{ bid_info.label[lang] }}</span>
+                    <span class="stage-info-item stage-label" ng-if="bid_info.bidder_id != bidder_id ">{{ bid_info.label[lang] | normalize_bidder_label }}</span>
                     <span class="stage-info-item stage-label" ng-if="bid_info.bidder_id == bidder_id " translate>You</span>
                     <span class="stage-info-item stage-amount"
                           ng-if="!angular.isUndefined(bid_info['amount_features']||bid_info['amount'])"
