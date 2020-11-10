@@ -104,42 +104,42 @@ angular.module('auction').controller('AuctionController',[
     });
     /*      Time tick events    */
     $rootScope.title_timer = function() {
-      const SECOND = 1000;
-      const DELIMITER_SPACE = ' ';
-      const DELIMITER_COLON = ':';
-      const NULLABLE_DAYS = '0';
-      const NULLABLE_HOURS = '00'; // with pad
+      var SECOND = 1000;
+      var DELIMITER_SPACE = ' ';
+      var DELIMITER_COLON = ':';
+      var NULLABLE_TIME = '00'; // with pad
 
-      let countdown = $rootScope.info_timer ? $rootScope.info_timer.countdown : 0;
-      let titleText = [];
-      let interval = $interval(setTime, SECOND);
+      var countdown = $rootScope.info_timer ? $rootScope.info_timer.countdown : 0;
+      var time = 0;
+      var titleText = [];
+      var interval = $interval(setTime, SECOND);
 
       setTime();
 
       function setTime() {
-        const {days, hours, minutes, seconds} = AuctionUtils.getTimeByCountdown(countdown);
+        time = AuctionUtils.getTimeByCountdown(countdown);
         titleText = [];
 
-        if (days !== NULLABLE_DAYS) {
+        if (time.days !== NULLABLE_TIME) {
           titleText = titleText.concat([
-            days,
+            time.days,
             DELIMITER_SPACE,
             $filter('translate')('days'),
             DELIMITER_SPACE,
           ]);
         }
 
-        if (hours !== NULLABLE_HOURS) {
+        if (time.hours !== NULLABLE_TIME) {
           titleText = titleText.concat([
-            hours,
+            time.hours,
             DELIMITER_COLON,
           ]);
         }
 
         titleText = titleText.concat([
-          minutes,
+          time.minutes,
           DELIMITER_COLON,
-          seconds,
+          time.seconds,
         ]);
 
         $rootScope.time_in_title = titleText.join('');

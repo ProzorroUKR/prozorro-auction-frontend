@@ -4,36 +4,42 @@ angular.module('auction').factory('AuctionUtils', [
     // Format msg for timer
     'use strict';
 
-    const SECOND = 1000;
-    const MINUTE = SECOND * 60;
-    const HOUR = MINUTE * 60;
-    const DAY = HOUR * 24;
-
-    const pipe = (...funcs) => v => {
-      return funcs.reduce((res, func) => {
-        return func(res);
-      }, v);
-    };
-
+    /**
+     * Adds leading zero
+     * @param {number} d
+     * @returns {string}
+     */
     function pad(d) {
       return (d < 10) ? '0' + d.toString() : d.toString();
     }
 
     /**
-     * @param {number} countdown - milliseconds
-     * @returns {{hours: string, seconds: string, minutes: string, days: string}}
+     * @param {number} countdown - from prepare_info_timer_data
+     * @returns {CustomTime}
      */
     function getTimeByCountdown(countdown) {
+      var milliseconds = (countdown || 0) * 1000;
+      var days, hours, minutes, seconds;
+
+      seconds = Math.floor(milliseconds / 1000);
+      minutes = Math.floor(seconds / 60);
+      seconds = seconds % 60;
+      hours = Math.floor(minutes / 60);
+      minutes = minutes % 60;
+      days = Math.floor(hours / 24);
+      hours = hours % 24;
+
       return {
-        days: Math.floor(countdown / DAY).toString(),
-        hours: pipe(Math.floor, pad)((countdown / HOUR) % 24),
-        minutes: pipe(Math.floor, pad)(countdown / 60),
-        seconds: pipe(Math.floor, pad)(countdown % 60),
-      }
+        days: pad(days).toString(),
+        hours: pad(hours).toString(),
+        minutes: pad(minutes).toString(),
+        seconds: pad(seconds).toString(),
+      };
     }
 
     function prepare_info_timer_data(current_time, auction, bidder_id, Rounds) {
       var i;
+
       if (auction.current_stage === -101) {
         return {
           'countdown': false,
@@ -41,6 +47,7 @@ angular.module('auction').factory('AuctionUtils', [
           'msg': 'Auction has not started and will be rescheduled'
         };
       }
+
       if (auction.current_stage === -100) {
         return {
           'countdown': false,
@@ -48,28 +55,32 @@ angular.module('auction').factory('AuctionUtils', [
           'msg': 'Tender cancelled'
         };
       }
+
       if (auction.current_stage === -1) {
         var until_seconds = (new Date(auction.stages[0].start) - current_time) / 1000;
+
         if (until_seconds > -120){
           return {
             'countdown': (until_seconds) + Math.random(),
             'start_time': false,
             'msg': 'until the auction starts'
           };
-        }else{
-          return {
-            'countdown': false,
-            'start_time': true,
-            'msg': 'Auction has not started and will be rescheduled'
-          };
         }
-      }else{
+
+        return {
+          'countdown': false,
+          'start_time': true,
+          'msg': 'Auction has not started and will be rescheduled'
+        };
+      } else {
           if ((auction.stages[auction.current_stage].type || '') == "pre_announcement") {
             var client_time = new Date();
             var ends_time = new Date(auction.stages[auction.current_stage].start);
+
             if (client_time < ends_time) {
               ends_time = client_time;
             }
+
             return {
               'countdown': false,
               'start_time': ends_time,
@@ -77,18 +88,22 @@ angular.module('auction').factory('AuctionUtils', [
               'msg_ending': 'Waiting for the disclosure of the participants\' names'
             };
           }
+
           if ((auction.stages[auction.current_stage].type || '') == "announcement") {
             var client_time = new Date();
             var ends_time = new Date(auction.stages[auction.current_stage - 1].start);
+
             if (client_time < ends_time) {
               ends_time = client_time;
             }
+
             return {
               'countdown': false,
               'start_time': ends_time,
               'msg': 'Auction was completed'
             };
           }
+
           if (bidder_id) {
             if (auction.stages[auction.current_stage].bidder_id === bidder_id) {
               return {
@@ -97,11 +112,14 @@ angular.module('auction').factory('AuctionUtils', [
                 'msg': 'until your turn ends'
               };
             }
+
             var all_rounds = Rounds.concat(auction.stages.length - 2);
+
             for (i in all_rounds) {
               if (auction.current_stage < all_rounds[i]) {
                 for (var index = auction.current_stage; index <= all_rounds[i]; index++) {
                   if ((auction.stages[index].bidder_id) && (auction.stages[index].bidder_id === bidder_id)) {
+                    log('i in all_rounds');
                     return {
                       'countdown': ((new Date(auction.stages[index].start) - current_time) / 1000) + Math.random(),
                       'start_time': false,
@@ -113,6 +131,7 @@ angular.module('auction').factory('AuctionUtils', [
               }
             }
           }
+
           for (i in Rounds) {
             if (auction.current_stage == Rounds[i]) {
               return {
@@ -121,6 +140,7 @@ angular.module('auction').factory('AuctionUtils', [
                 'msg': 'until the round starts'
               };
             }
+
             if (auction.current_stage < Rounds[i]) {
               return {
                 'countdown': ((new Date(auction.stages[Rounds[i]].start) - current_time) / 1000) + Math.random(),
@@ -129,8 +149,8 @@ angular.module('auction').factory('AuctionUtils', [
               };
             }
           }
-
       }
+
       return {
         'countdown': ((new Date(auction.stages[auction.stages.length - 2].start) - current_time) / 1000) + Math.random(),
         'start_time': false,
@@ -509,7 +529,6 @@ angular.module('auction').factory('AuctionUtils', [
       'detectIE': detectIE,
       'UnsupportedBrowser': UnsupportedBrowser,
       'npv': npv,
-      'pipe': pipe,
       'getTimeByCountdown': getTimeByCountdown,
     };
 }]);

@@ -10,13 +10,13 @@
     <link href="/static/css/all.css" rel="stylesheet" crossorigin="anonymous">
     {% raw %}
         <title ng-if="!info_timer.start_time"
-               ng-bind-template="{{ time_in_title }} {{ info_timer.msg|translate}} - {{ title_ending }}"
+               ng-bind-template="{{ time_in_title }} {{ info_timer.msg | translate}} - {{ title_ending }}"
         >Аукціон</title>
         <title ng-if="!$root.info_timer.start_time && !$root.info_timer.countdown"
-               ng-bind-template="{{ $root.info_timer.msg|translate }} {{ format_date($root.info_timer.start_time, lang, 'Do MMMM YYYY') }} {{ 'at'|translate }} {{ format_date($root.info_timer.start_time, lang, 'HH:mm') }} - {{ title_ending }}"
+               ng-bind-template="{{ $root.info_timer.msg | translate }} {{ format_date($root.info_timer.start_time, lang, 'Do MMMM YYYY') }} {{ 'at'|translate }} {{ format_date($root.info_timer.start_time, lang, 'HH:mm') }} - {{ title_ending }}"
         ></title>
         <title ng-if="$root.info_timer.start_time && !$root.info_timer.countdown"
-               ng-bind-template="{{ $root.info_timer.msg|translate }} - {{ title_ending }}"
+               ng-bind-template="{{ $root.info_timer.msg | translate }} - {{ title_ending }}"
         ></title>
     {% endraw %}
 {% endblock %}
