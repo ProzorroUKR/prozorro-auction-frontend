@@ -373,7 +373,7 @@ angular.module('auction').controller('AuctionController',[
       }
       $log.info({
         message: "Start post bid",
-        bid_data: bid_data
+        bid_data: JSON.stringify(bid_data)
       });
 
       if ($rootScope.form.BidsForm.$valid) {
@@ -458,7 +458,7 @@ angular.module('auction').controller('AuctionController',[
             } else {
                 $log.info({
                     message: "Handle success response on post bid",
-                    bid_data: bid_data
+                    bid_data: JSON.stringify(bid_data)
                 });
                 $rootScope.alerts.push({
                     msg_id: msg_id,
@@ -745,11 +745,12 @@ angular.module('auction').controller('AuctionController',[
             data
           ).then(
             function(response) {
+                $rootScope.bidder_id = $rootScope.query_params.bidder_id;
+                $rootScope.return_url = $rootScope.query_params.return_url;
+                $log.context["BIDDER_ID"] = $rootScope.bidder_id;
                 $log.info({
                   message: "Authorization checked"
                 });
-                $rootScope.bidder_id = $rootScope.query_params.bidder_id;
-                $rootScope.return_url = $rootScope.query_params.return_url;
                 if ('coeficient' in response.data) {
                     $rootScope.bidder_coeficient = math.fraction(response.data.coeficient);
                     $log.info({message: "Get coeficient " + $rootScope.bidder_coeficient});
