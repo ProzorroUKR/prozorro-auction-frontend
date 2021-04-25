@@ -13,14 +13,19 @@
     display: none !important;
 }
 body {
-    padding-top: 73px;
     padding-bottom: 196px;
+}
+body .header-fixed-space{
+    padding-top: 73px;
 }
 .col-xs-1, .col-xs-2, .col-xs-3, .col-xs-4,
 .col-xs-5, .col-xs-6, .col-xs-7, .col-xs-8,
 .col-xs-9, .col-xs-10, .col-xs-11, .col-xs-12 {
     padding-right: 0;
     padding-left: 0;
+}
+.font-weight-bold {
+    font-weight: bold;
 }
 
 /*----- Header -----*/
@@ -87,6 +92,20 @@ body {
     }
 }
 
+/* Auction information */
+.auction-info > * {
+    @media (max-width: @screen-sm-min) {
+        padding: 0 5px;
+    }
+}
+
+.auction-info-items {
+    margin-top: 10px;
+    @media (max-width: @screen-sm-min) {
+        list-style: none;
+    }
+}
+
 /* Round information */
 .round-information {
     background-color: #a1a1a1;
@@ -94,6 +113,7 @@ body {
     color: #fff;
     text-align: center;
     padding: 0 6px;
+    width: 200px;
 }
 .round-number{
     font-size: 23px;
@@ -224,7 +244,7 @@ body {
     font-size: 16px;
 }
 .future-stage .minimal-amount {
-    background-color: transparent;
+    background-color: #f2f2f2;
 }
 .future-stage .label-minimum {
     color: #fb8484;
@@ -238,7 +258,7 @@ body {
 
 /* Current stage*/
 .my-bid-stage {
-    background-color: #f2f2f2;
+    background-color: #f8f8f8;
     overflow: hidden;
 }
 
@@ -280,8 +300,8 @@ body {
 .main-price-block .normalized-price-group span {
     display: none;
 }
-.full-price-group > span:first-child,
-.normalized-price-group > span:first-child {
+.full-price-group > :first-child,
+.normalized-price-group > :first-child {
     font-weight: bold;
 }
 .bidder-coeficient-wrap {
@@ -302,13 +322,15 @@ body {
     padding: 0px 0 6px;
     font: 14px "Helvetica Neue",Helvetica,Arial,sans-serif;
 }
-.default-bids-form{
+.default-bids-form {
     #BidsForm label {
         font-size: 18px;
         font-weight: normal;
     }
+    #cancel-bid-button,
+    #place-bid-button,
     #edit-bid-button,
-    #place-bid-button {
+    #clear-bid-button {
         margin-right: 15px;
     }
 }
@@ -317,6 +339,7 @@ body {
     border-radius: 0;
 }
 .auction-with-one-price .input-group-btn {
+    padding-right: 15px;
     padding-top: 0;
 }
 
@@ -327,9 +350,9 @@ body {
         padding-left: 5px;
     }
     .stage-amount {
-        -webkit-border-radius: 6px;
-        -moz-border-radius: 6px;
-        border-radius: 6px;
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+        border-radius: 2px;
     }
     .price-inform-block {
         display: none;
@@ -389,7 +412,7 @@ body {
     #place-bid-button,
     #edit-bid-button,
     #clear-bid-button {
-        border-radius: 0px;
+        border-radius: 0;
         white-space: normal;
         float: left;
         padding: 6px 12px;

@@ -1,11 +1,10 @@
-angular.module('auction').controller('AuctionController',[
+angular.module('auction').controller('AuctionController', [
   'AuctionConfig', 'AuctionUtils',
   '$timeout', '$interval', '$http', '$log', '$cookies', '$window',
   '$rootScope', '$location', '$translate', '$filter', 'growl', 'growlMessages', '$aside', '$q',
-  function(AuctionConfig, AuctionUtils,
-  $timeout, $interval, $http, $log, $cookies, $window,
-  $rootScope, $location, $translate, $filter, growl, growlMessages, $aside, $q)
-  {
+  function (AuctionConfig, AuctionUtils,
+            $timeout, $interval, $http, $log, $cookies, $window,
+            $rootScope, $location, $translate, $filter, growl, growlMessages, $aside, $q) {
     /**
      * @type {Object.<LanguageKey, LocaleKey>}
      */
@@ -18,12 +17,12 @@ angular.module('auction').controller('AuctionController',[
     /**
      * @param {LanguageKey} langKey
      */
-    var setDocumentLang = function(langKey) {
+    var setDocumentLang = function (langKey) {
       document.documentElement.lang = langKey;
       document.querySelector('[http-equiv="Content-Language"]').setAttribute('content', localesMap[langKey]);
     }
 
-    if (AuctionUtils.inIframe() && 'localhost'!= location.hostname) {
+    if (AuctionUtils.inIframe() && 'localhost' !== location.hostname) {
       $log.error('Starts in iframe');
       window.open(location.href, '_blank');
       return false;
@@ -53,8 +52,8 @@ angular.module('auction').controller('AuctionController',[
       $log.info("Close window");
     }
 
-    if (AuctionConfig.auction_doc_id.indexOf("_") > 0 ){
-      var doc_id_parts =  AuctionConfig.auction_doc_id.split("_")
+    if (AuctionConfig.auction_doc_id.indexOf("_") > 0) {
+      var doc_id_parts = AuctionConfig.auction_doc_id.split("_")
       $log.context["TENDER_ID"] = doc_id_parts[0];
       $log.context["LOT_ID"] = doc_id_parts[1];
     } else {
@@ -68,7 +67,7 @@ angular.module('auction').controller('AuctionController',[
       user_agent: navigator.userAgent
     })
 
-    $rootScope.change_view = function() {
+    $rootScope.change_view = function () {
       if ($rootScope.bidder_coeficient) {
         $rootScope.normilized = !$rootScope.normilized;
       }
@@ -84,26 +83,26 @@ angular.module('auction').controller('AuctionController',[
     setDocumentLang($rootScope.lang);
 
     /*      Time stopped events    */
-    $rootScope.$on('timer-stopped', function(event) {
-      if (($rootScope.auction_doc) && (event.targetScope.timerid == 1) && ($rootScope.auction_doc.current_stage == -1)) {
-        if (!$rootScope.auction_not_started){
-          $rootScope.auction_not_started = $timeout(function() {
-            if($rootScope.auction_doc.current_stage === -1){
+    $rootScope.$on('timer-stopped', function (event) {
+      if (($rootScope.auction_doc) && (event.targetScope.timerid === 1) && ($rootScope.auction_doc.current_stage === -1)) {
+        if (!$rootScope.auction_not_started) {
+          $rootScope.auction_not_started = $timeout(function () {
+            if ($rootScope.auction_doc.current_stage === -1) {
               growl.warning('Please wait for the auction start.', {ttl: 120000, disableCountDown: true});
               $log.info({message: "Please wait for the auction start."});
             }
           }, 10000);
         }
 
-        $timeout(function() {
-          if($rootScope.auction_doc.current_stage === -1){
+        $timeout(function () {
+          if ($rootScope.auction_doc.current_stage === -1) {
             $rootScope.sync_times_with_server();
           }
         }, 120000);
       }
     });
     /*      Time tick events    */
-    $rootScope.title_timer = function() {
+    $rootScope.title_timer = function () {
       var SECOND = 1000;
       var DELIMITER_SPACE = ' ';
       var DELIMITER_COLON = ':';
@@ -151,7 +150,7 @@ angular.module('auction').controller('AuctionController',[
       }
     }
 
-    $rootScope.$on('timer-tick', function(event) {
+    $rootScope.$on('timer-tick', function (event) {
       const date = new Date();
 
       if ($rootScope.auction_doc && event.targetScope.timerid === 1) {
@@ -173,61 +172,63 @@ angular.module('auction').controller('AuctionController',[
     /**
      * @param {LanguageKey} langKey
      */
-    $rootScope.changeLanguage = function(langKey) {
+    $rootScope.changeLanguage = function (langKey) {
       $translate.use(langKey);
       $rootScope.lang = langKey;
       setDocumentLang(langKey);
     };
 
     // Bidding form msgs
-    $rootScope.closeAlert = function(msg_id) {
+    $rootScope.closeAlert = function (msg_id) {
       for (var i = 0; i < $rootScope.alerts.length; i++) {
-        if ($rootScope.alerts[i].msg_id == msg_id) {
+        if ($rootScope.alerts[i].msg_id === msg_id) {
           $rootScope.alerts.splice(i, 1);
           return true;
         }
       }
     };
-    $rootScope.auto_close_alert = function(msg_id) {
-      $timeout(function() {
+    $rootScope.auto_close_alert = function (msg_id) {
+      $timeout(function () {
         $rootScope.closeAlert(msg_id);
       }, 4000);
     };
-    $rootScope.get_round_number = function(pause_index) {
+    $rootScope.get_round_number = function (pause_index) {
       return AuctionUtils.get_round_data(pause_index, $rootScope.auction_doc, $rootScope.Rounds);
     };
-    $rootScope.show_bids_form = function(argument) {
+    $rootScope.show_bids_form = function (argument) {
       if (
         (angular.isNumber($rootScope.auction_doc.current_stage)) &&
         ($rootScope.auction_doc.current_stage >= 0) &&
-        ($rootScope.auction_doc.stages[$rootScope.auction_doc.current_stage].type == 'bids') &&
-        ($rootScope.auction_doc.stages[$rootScope.auction_doc.current_stage].bidder_id == $rootScope.bidder_id)
+        ($rootScope.auction_doc.stages[$rootScope.auction_doc.current_stage].type === 'bids') &&
+        ($rootScope.auction_doc.stages[$rootScope.auction_doc.current_stage].bidder_id === $rootScope.bidder_id)
       ) {
         $log.info({message: "Allow view bid form"});
         $rootScope.max_bid_amount();
         $rootScope.view_bids_form = true;
-        if($rootScope.is_esco){ // TypeError: Cannot read property '$valid' of undefined
-            $timeout(function(){$rootScope.calculate_current_npv();}, 100);
+        if ($rootScope.is_esco) { // TypeError: Cannot read property '$valid' of undefined
+          $timeout(function () {
+            $rootScope.calculate_current_npv();
+          }, 100);
         }
-      }else{
+      } else {
         $rootScope.view_bids_form = false;
       }
       return $rootScope.view_bids_form;
     };
 
-    $rootScope.sync_times_with_server = function(callback) {
+    $rootScope.sync_times_with_server = function (callback) {
       $http.get('/get_current_server_time', {
         'params': {
           '_nonce': Math.random().toString()
         }
-      }).then(function(data) {
+      }).then(function (data) {
         $rootScope.last_sync = new Date(new Date(data.headers().date));
 
         $rootScope.info_timer = AuctionUtils.prepare_info_timer_data(
-            $rootScope.last_sync,
-            $rootScope.auction_doc,
-            $rootScope.bidder_id,
-            $rootScope.Rounds,
+          $rootScope.last_sync,
+          $rootScope.auction_doc,
+          $rootScope.bidder_id,
+          $rootScope.Rounds,
         );
 
         $log.debug({
@@ -241,15 +242,15 @@ angular.module('auction').controller('AuctionController',[
         );
 
         $log.debug({
-          message: "Progres timer data:",
+          message: "Progress timer data:",
           progress_timer: $rootScope.progres_timer
         });
 
-        if ($rootScope.auction_doc.current_stage == -1) {
+        if ($rootScope.auction_doc.current_stage === -1) {
           if ($rootScope.progres_timer.countdown_seconds < 900) {
             $rootScope.start_changes_feed = true;
           } else {
-            $timeout(function() {
+            $timeout(function () {
               $rootScope.follow_login = true;
               $rootScope.start_changes_feed = true;
             }, ($rootScope.progres_timer.countdown_seconds - 900) * 1000);
@@ -259,90 +260,93 @@ angular.module('auction').controller('AuctionController',[
         if (callback !== undefined) {
           callback();
         }
-      }, function() {
+      }, function () {
         $log.error("get_current_server_time error");
       });
     };
 
-    $rootScope.warning_post_bid = function(){
+    $rootScope.warning_post_bid = function () {
       growl.error('Unable to place a bid. Check that no more than 2 auctions are simultaneously opened in your browser.');
     };
 
     $rootScope.request_failed_warning = null;
-    $rootScope.show_failed_request_warning = function(){
-        if(!$rootScope.request_failed_warning){
-            $rootScope.request_failed_warning = growl.error(
-                "Your post bid request still hasn't succeed. Check (or change) your internet connection, browser or device.",
-                {ttl: -1, disableCountDown: true}
-            );
-        }
+    $rootScope.show_failed_request_warning = function () {
+      if (!$rootScope.request_failed_warning) {
+        $rootScope.request_failed_warning = growl.error(
+          "Your post bid request still hasn't succeed. Check (or change) your internet connection, browser or device.",
+          {ttl: -1, disableCountDown: true}
+        );
+      }
     };
     $rootScope.request_failed_warning_timeout = null;
-    $rootScope.schedule_failed_request_warning = function(){
-        if (!$rootScope.request_failed_warning_timeout) {
-            $rootScope.request_failed_warning_timeout = $timeout($rootScope.show_failed_request_warning, 5000);
-        }
+    $rootScope.schedule_failed_request_warning = function () {
+      if (!$rootScope.request_failed_warning_timeout) {
+        $rootScope.request_failed_warning_timeout = $timeout($rootScope.show_failed_request_warning, 5000);
+      }
     };
-    $rootScope.remove_failed_request_warning = function(){
-        if($rootScope.request_failed_warning){
-            $rootScope.growlMessages.deleteMessage(
-                $rootScope.request_failed_warning
-            );
-            delete $rootScope.request_failed_warning;
-        }
-        if ($rootScope.request_failed_warning_timeout) {
-            $timeout.cancel($rootScope.request_failed_warning_timeout);
-            delete $rootScope.request_failed_warning_timeout;
-        }
+    $rootScope.remove_failed_request_warning = function () {
+      if ($rootScope.request_failed_warning) {
+        $rootScope.growlMessages.deleteMessage(
+          $rootScope.request_failed_warning
+        );
+        delete $rootScope.request_failed_warning;
+      }
+      if ($rootScope.request_failed_warning_timeout) {
+        $timeout.cancel($rootScope.request_failed_warning_timeout);
+        delete $rootScope.request_failed_warning_timeout;
+      }
     };
 
     var too_low_bid_msg_id = "too_low_bid_msg_id";
-    $rootScope.show_too_low_bid_warning = function(value){
-        var prev_value = 0;
-        if (angular.isObject($rootScope.auction_doc)) {
-            var current_stage_obj = $rootScope.auction_doc.stages[$rootScope.auction_doc.current_stage];
-            if (angular.isObject(current_stage_obj) && (current_stage_obj.amount || current_stage_obj.amount_features)) {
-              if (($rootScope.auction_doc.auction_type || "default") === "meat") {
-                if($rootScope.bidder_coeficient){
-                    prev_value = math.fraction(current_stage_obj.amount_features) * $rootScope.bidder_coeficient;
-                }
-              } else {
-                prev_value = math.fraction(current_stage_obj.amount);
-              }
+    $rootScope.show_too_low_bid_warning = function (value) {
+      var prev_value = 0;
+      if (angular.isObject($rootScope.auction_doc)) {
+        var current_stage_obj = $rootScope.auction_doc.stages[$rootScope.auction_doc.current_stage];
+        if (angular.isObject(current_stage_obj) && (current_stage_obj.amount || current_stage_obj.amount_features)) {
+          if ($rootScope.is_meat) {
+            if ($rootScope.bidder_coeficient) {
+              prev_value = math.fraction(current_stage_obj.amount_features) * $rootScope.bidder_coeficient;
             }
-        };
-        var too_low_bid_ratio = prev_value !== 0 ? (100 - value / prev_value * 100).toFixed(2) : NaN;
-        $rootScope.alerts.push({
-            type: 'danger',
-            msg: 'You are going to decrease your bid by {{too_low_bid_ratio}}%. Are you sure?',
-            msg_vars: {too_low_bid_ratio: too_low_bid_ratio}
-        });
-    }
-    $rootScope.prevent_sending_too_low_bid = function(value){
-        var ratio = 1 - value / $rootScope.calculated_max_bid_amount;
-        if (
-            $rootScope.calculated_max_bid_amount == null || value == null || value === -1
-            || ratio < 0.3
-            || $rootScope.force_post_low_bid === value
-        ) {
-            $rootScope.force_post_low_bid = undefined;
-            $rootScope.closeAlert(too_low_bid_msg_id);
-            return false;
-        } else {
-            $rootScope.force_post_low_bid = value;
-            $rootScope.show_too_low_bid_warning(value);
-            return true;
+          } else if ($rootScope.is_lcc) {
+            if ($rootScope.bidder_non_price_cost) {
+              prev_value = math.fraction(current_stage_obj.amount_weighted) - $rootScope.bidder_non_price_cost;
+            }
+          } else {
+            prev_value = math.fraction(current_stage_obj.amount);
+          }
         }
+      }
+      $rootScope.alerts.push({
+        type: 'danger',
+        msg: 'You are going to decrease your bid by {{too_low_bid_ratio}}%. Are you sure?',
+        msg_vars: {too_low_bid_ratio: prev_value !== 0 ? (100 - value / prev_value * 100).toFixed(2) : NaN}
+      });
+    }
+    $rootScope.prevent_sending_too_low_bid = function (value) {
+      var ratio = 1 - value / $rootScope.calculated_max_bid_amount;
+      if (
+        $rootScope.calculated_max_bid_amount == null || value == null || value === -1
+        || ratio < 0.3
+        || $rootScope.force_post_low_bid === value
+      ) {
+        $rootScope.force_post_low_bid = undefined;
+        $rootScope.closeAlert(too_low_bid_msg_id);
+        return false;
+      } else {
+        $rootScope.force_post_low_bid = value;
+        $rootScope.show_too_low_bid_warning(value);
+        return true;
+      }
     };
 
     // esco TODO check if it's used somewhere
-    $rootScope.calculate_yearly_payments = function(annual_costs_reduction, yearlyPaymentsPercentage) {
+    $rootScope.calculate_yearly_payments = function (annual_costs_reduction, yearlyPaymentsPercentage) {
       return math.fraction(annual_costs_reduction) * math.fraction(yearlyPaymentsPercentage);
     };
-    $rootScope.calculate_current_npv = function() {
-      contractDurationYears = $rootScope.form.contractDurationYears || 0;
-      contractDurationDays = $rootScope.form.contractDurationDays || 0;
-      yearlyPaymentsPercentage = $rootScope.form.yearlyPaymentsPercentage || 0;
+    $rootScope.calculate_current_npv = function () {
+      var contractDurationYears = $rootScope.form.contractDurationYears || 0,
+          contractDurationDays = $rootScope.form.contractDurationDays || 0,
+          yearlyPaymentsPercentage = $rootScope.form.yearlyPaymentsPercentage || 0;
       if ($rootScope.form.BidsForm.$valid) {
         $rootScope.current_npv = AuctionUtils.npv(
           parseInt(contractDurationYears.toFixed()),
@@ -358,8 +362,8 @@ angular.module('auction').controller('AuctionController',[
     };
     // -- esco
 
-    $rootScope.post_bid = function(firstArg, secondArgs, thirdArg) {
-      if ($rootScope.is_esco){
+    $rootScope.post_bid = function (firstArg, secondArgs, thirdArg) {
+      if ($rootScope.is_esco) {
         var contractDurationYears = firstArg || $rootScope.form.contractDurationYears || 0;
         var contractDurationDays = secondArgs || $rootScope.form.contractDurationDays || 0;
         var yearlyPaymentsPercentage = thirdArg || $rootScope.form.yearlyPaymentsPercentage || 0;
@@ -368,7 +372,7 @@ angular.module('auction').controller('AuctionController',[
           contractDurationDays: parseInt(contractDurationDays.toFixed()),
           yearlyPaymentsPercentage: yearlyPaymentsPercentage === -1 ? yearlyPaymentsPercentage : parseFloat((yearlyPaymentsPercentage / 100).toFixed(5))
         };
-      }else{
+      } else {
         bid_data = {amount: parseFloat(firstArg) || parseFloat($rootScope.form.bid) || 0};
       }
       $log.info({
@@ -378,32 +382,34 @@ angular.module('auction').controller('AuctionController',[
 
       if ($rootScope.form.BidsForm.$valid) {
         $rootScope.alerts = [];
-        if ($rootScope.is_esco){
-            var bid_amount = AuctionUtils.npv(
-              parseInt(contractDurationYears.toFixed()),
-              parseInt(contractDurationDays.toFixed()),
-              parseFloat(yearlyPaymentsPercentage.toFixed(3)),
-              $rootScope.get_annual_costs_reduction($rootScope.bidder_id),
-              $rootScope.auction_doc.noticePublicationDate,
-              $rootScope.auction_doc.NBUdiscountRate
-            );
-            var is_cancellation = yearlyPaymentsPercentage == -1;
-        }else{
-            bid_amount = bid_data.amount;
-            if ($rootScope.prevent_sending_too_low_bid(bid_amount)){
-                return 0;
-            }
-            is_cancellation = bid_data.amount === -1
+        if ($rootScope.is_esco) {
+          var bid_amount = AuctionUtils.npv(
+            parseInt(contractDurationYears.toFixed()),
+            parseInt(contractDurationDays.toFixed()),
+            parseFloat(yearlyPaymentsPercentage.toFixed(3)),
+            $rootScope.get_annual_costs_reduction($rootScope.bidder_id),
+            $rootScope.auction_doc.noticePublicationDate,
+            $rootScope.auction_doc.NBUdiscountRate
+          );
+          var is_cancellation = yearlyPaymentsPercentage === -1;
+        } else {
+          bid_amount = bid_data.amount;
+          if ($rootScope.prevent_sending_too_low_bid(bid_amount)) {
+            return 0;
+          }
+          is_cancellation = bid_data.amount === -1
         }
-        if (bid_amount == $rootScope.minimal_bid.amount) {
+        if (bid_amount === $rootScope.minimal_bid.amount) {
           $rootScope.alerts.push({
             msg_id: Math.random(),
             type: 'warning',
-            msg: 'The proposal you have submitted coincides with a proposal of the other participant. His proposal will be considered first, since it has been submitted earlier.'
+            msg: 'The proposal you have submitted coincides with a proposal of the other participant. ' +
+              'His proposal will be considered first, since it has been submitted earlier.'
           });
-        };
+        }
+        ;
         $rootScope.form.active = true;
-        $timeout(function() {
+        $timeout(function () {
           $rootScope.form.active = false;
         }, 5000);
         if (!$rootScope.post_bid_timeout) {
@@ -412,133 +418,152 @@ angular.module('auction').controller('AuctionController',[
         $rootScope.schedule_failed_request_warning();
 
         $http.post(
-            "/api/auctions/" + AuctionConfig.auction_doc_id + "/bids/" +  ($rootScope.bidder_id || bidder_id) +
-            "?hash=" + $rootScope.query_params.hash,
-            bid_data
-        ).then(function(success) {
-            $rootScope.remove_failed_request_warning();
-            if ($rootScope.post_bid_timeout){
-                $timeout.cancel($rootScope.post_bid_timeout);
-                delete $rootScope.post_bid_timeout;
-            }
-            $rootScope.form.active = false;
+          "/api/auctions/" + AuctionConfig.auction_doc_id + "/bids/" + ($rootScope.bidder_id || bidder_id) +
+          "?hash=" + $rootScope.query_params.hash,
+          bid_data
+        ).then(function (success) {
+          $rootScope.remove_failed_request_warning();
+          if ($rootScope.post_bid_timeout) {
+            $timeout.cancel($rootScope.post_bid_timeout);
+            delete $rootScope.post_bid_timeout;
+          }
+          $rootScope.form.active = false;
 
-            var msg_id = Math.random();
-            if (is_cancellation) {
-                $rootScope.alerts = [];
-                $rootScope.allow_bidding = true;
-                $log.info({
-                    message: "Handle cancel bid response on post bid"
-                });
-                $rootScope.alerts.push({
-                    msg_id: msg_id,
-                    type: 'success',
-                    msg: 'Bid canceled'
-                });
-                $log.info({
-                    message: "Handle cancel bid response on post bid"
-                });
-                if ($rootScope.is_esco){
-                  var npv = AuctionUtils.npv(
-                      success.data.contractDurationYears,
-                      success.data.contractDurationDays,
-                      success.data.yearlyPaymentsPercentage,
-                      $rootScope.get_annual_costs_reduction($rootScope.bidder_id),
-                      $rootScope.auction_doc.noticePublicationDate,
-                      $rootScope.auction_doc.NBUdiscountRate
-                  );
-                  $rootScope.current_npv = npv;
-                  $rootScope.form.contractDurationYears = success.data.contractDurationYears;
-                  $rootScope.form.contractDurationDays = success.data.contractDurationDays;
-                  $rootScope.form.yearlyPaymentsPercentage = success.data.yearlyPaymentsPercentage * 100;
-                }else{
-                  $rootScope.form.bid = "";
-                  $rootScope.form.full_price = '';
-                }
+          var msg_id = Math.random();
+          if (is_cancellation) {
+            $rootScope.alerts = [];
+            $rootScope.allow_bidding = true;
+            $log.info({
+              message: "Handle cancel bid response on post bid"
+            });
+            $rootScope.alerts.push({
+              msg_id: msg_id,
+              type: 'success',
+              msg: 'Bid canceled'
+            });
+            $log.info({
+              message: "Handle cancel bid response on post bid"
+            });
+            if ($rootScope.is_esco) {
+              var npv = AuctionUtils.npv(
+                success.data.contractDurationYears,
+                success.data.contractDurationDays,
+                success.data.yearlyPaymentsPercentage,
+                $rootScope.get_annual_costs_reduction($rootScope.bidder_id),
+                $rootScope.auction_doc.noticePublicationDate,
+                $rootScope.auction_doc.NBUdiscountRate
+              );
+              $rootScope.current_npv = npv;
+              $rootScope.form.contractDurationYears = success.data.contractDurationYears;
+              $rootScope.form.contractDurationDays = success.data.contractDurationDays;
+              $rootScope.form.yearlyPaymentsPercentage = success.data.yearlyPaymentsPercentage * 100;
             } else {
-                $log.info({
-                    message: "Handle success response on post bid",
-                    bid_data: JSON.stringify(bid_data)
-                });
-                $rootScope.alerts.push({
-                    msg_id: msg_id,
-                    type: 'success',
-                    msg: 'Bid placed'
-                });
-                $rootScope.allow_bidding = false;
+              $rootScope.form.bid = "";
+              $rootScope.form.full_price = '';
             }
+          } else {
+            $log.info({
+              message: "Handle success response on post bid",
+              bid_data: JSON.stringify(bid_data)
+            });
+            $rootScope.alerts.push({
+              msg_id: msg_id,
+              type: 'success',
+              msg: 'Bid placed'
+            });
+            $rootScope.allow_bidding = false;
+          }
+          $rootScope.auto_close_alert(msg_id);
+
+        }, function (error) {
+          $log.info({
+            message: "Handle error on post bid",
+            bid_data: error.status
+          });
+          if ($rootScope.post_bid_timeout) {
+            $timeout.cancel($rootScope.post_bid_timeout);
+            delete $rootScope.post_bid_timeout;
+          }
+          if (error.status === 400) {
+            $rootScope.remove_failed_request_warning();
+            var msg_id = Math.random();
+            $rootScope.alerts.push({
+              msg_id: msg_id,
+              type: 'danger',
+              msg: error.data.error
+            });
+            $log.info({
+              message: "Handle failed response on post bid",
+              bid_data: error.data.error
+            });
             $rootScope.auto_close_alert(msg_id);
 
-        }, function(error) {
-            $log.info({
-              message: "Handle error on post bid",
-              bid_data: error.status
+          } else if (error.status === 401) {
+            $rootScope.remove_failed_request_warning();
+            $rootScope.alerts.push({
+              msg_id: Math.random(),
+              type: 'danger',
+              msg: 'Ability to submit bids has been lost. Use the valid participation link to enter the auction.'
             });
-            if ($rootScope.post_bid_timeout){
-              $timeout.cancel($rootScope.post_bid_timeout);
-              delete $rootScope.post_bid_timeout;
-            }
-            if (error.status == 400){
-                $rootScope.remove_failed_request_warning();
-                var msg_id = Math.random();
-                $rootScope.alerts.push({
-                  msg_id: msg_id,
-                  type: 'danger',
-                  msg: error.data.error
-                });
-                $log.info({
-                  message: "Handle failed response on post bid",
-                  bid_data: error.data.error
-                });
-                $rootScope.auto_close_alert(msg_id);
-
-            } else if (error.status == 401) {
-              $rootScope.remove_failed_request_warning();
-              $rootScope.alerts.push({
-                msg_id: Math.random(),
-                type: 'danger',
-                msg: 'Ability to submit bids has been lost. Use the valid participation link to enter the auction.'
-              });
-              $log.error({
-                message: "Ability to submit bids has been lost."
-              });
-            } else {
-              $log.error({
-                message: "Unhandled Error while post bid",
-                error_data: error.data
-              });
-              $timeout($rootScope.post_bid, 2000);
-            }
-          });
+            $log.error({
+              message: "Ability to submit bids has been lost."
+            });
+          } else {
+            $log.error({
+              message: "Unhandled Error while post bid",
+              error_data: error.data
+            });
+            $timeout($rootScope.post_bid, 2000);
+          }
+        });
       }
     };
-    $rootScope.edit_bid = function() {
+    $rootScope.edit_bid = function () {
       $rootScope.allow_bidding = true;
     };
-    $rootScope.max_bid_amount = function() {
+    $rootScope.max_bid_amount = function () {
       var amount = 0;
+
       if ((angular.isString($rootScope.bidder_id)) && (angular.isObject($rootScope.auction_doc))) {
         var current_stage_obj = $rootScope.auction_doc.stages[$rootScope.auction_doc.current_stage] || null;
-        if ((angular.isObject(current_stage_obj)) && (current_stage_obj.amount || current_stage_obj.amount_features)) {
-          if ($rootScope.bidder_coeficient && ($rootScope.auction_doc.auction_type || "default" == "meat")) {
+        if (angular.isObject(current_stage_obj) && (
+          current_stage_obj.amount || current_stage_obj.amount_features || current_stage_obj.amount_weighted
+        )) {
+          if ($rootScope.bidder_coeficient && $rootScope.is_meat) {
 
-            if ($rootScope.is_esco){
+            if ($rootScope.is_esco) {
               amount = math.fraction(current_stage_obj.amount_features) * (
-               $rootScope.bidder_coeficient + math.fraction($rootScope.auction_doc.minimalStepPercentage)
+                $rootScope.bidder_coeficient + math.fraction($rootScope.auction_doc.minimalStepPercentage)
               );
-            }else{
-              amount = math.fraction(current_stage_obj.amount_features) * $rootScope.bidder_coeficient - math.fraction($rootScope.auction_doc.minimalStep.amount);
+            } else {
+              amount = (
+                math.fraction(current_stage_obj.amount_features) * $rootScope.bidder_coeficient
+              ) - math.fraction($rootScope.auction_doc.minimalStep.amount);
+            }
+
+          } else if ($rootScope.bidder_coeficient && $rootScope.is_lcc) {
+
+            if ($rootScope.is_esco) {
+              amount = 0;
+            } else {
+              amount = (
+                math.fraction(current_stage_obj.amount_weighted) - $rootScope.bidder_non_price_cost
+              ) - math.fraction($rootScope.auction_doc.minimalStep.amount);
             }
 
           } else {
-            if ($rootScope.is_esco){
-              amount = math.fraction(current_stage_obj.amount) * (1 + math.fraction($rootScope.auction_doc.minimalStepPercentage));
-            }else{
+
+            if ($rootScope.is_esco) {
+              amount = math.fraction(current_stage_obj.amount) * (
+                1 + math.fraction($rootScope.auction_doc.minimalStepPercentage)
+              );
+            } else {
               amount = math.fraction(current_stage_obj.amount) - math.fraction($rootScope.auction_doc.minimalStep.amount);
             }
+
           }
         }
-      };
+      }
       if (amount < 0) {
         $rootScope.calculated_max_bid_amount = 0;
         return 0;
@@ -546,251 +571,279 @@ angular.module('auction').controller('AuctionController',[
       $rootScope.calculated_max_bid_amount = amount;
       return amount;
     };
-    $rootScope.calculate_minimal_bid_amount = function() {
+    $rootScope.calculate_minimal_bid_amount = function () {
       if ((angular.isObject($rootScope.auction_doc)) && (angular.isArray($rootScope.auction_doc.stages)) && (angular.isArray($rootScope.auction_doc.initial_bids))) {
         var bids = [];
-        var sort_by = $rootScope.auction_doc.auction_type == 'meat' ? 'amount_features' : 'amount';
-        var filter_func = function(item, index) {
-            if (!angular.isUndefined(item[sort_by])) {
-              bids.push(item);
-            }
+        var sort_by;
+
+        if ($rootScope.is_meat) {
+          sort_by = 'amount_features';
+        } else if ($rootScope.is_lcc) {
+          sort_by = 'amount_weighted';
+        } else {
+          sort_by = 'amount';
+        }
+        var filter_func = function (item, index) {
+          if (!angular.isUndefined(item[sort_by])) {
+            bids.push(item);
+          }
         };
         $rootScope.auction_doc.stages.forEach(filter_func);
         $rootScope.auction_doc.initial_bids.forEach(filter_func);
-        if ($rootScope.is_esco){
-          $rootScope.minimal_bid = bids.sort(function(a, b) {
-              if ($rootScope.auction_doc.auction_type == 'meat') {
-                var diff = math.fraction(math.eval(a.amount_features)) - math.fraction(math.eval(b.amount_features));
-              } else {
-                diff = math.eval(a.amount) - math.eval(b.amount);
-              }
-              if (diff === 0) {
-                return Date.parse(a.time || "") - Date.parse(b.time || "");
-              }
-              return diff;
-           }).reverse()[0];
+        if ($rootScope.is_esco) {
+          $rootScope.minimal_bid = bids.sort(function (a, b) {
+            var diff;
+            if ($rootScope.is_meat) {
+              diff = math.fraction(math.eval(a.amount_features)) - math.fraction(math.eval(b.amount_features));
+            } else if ($rootScope.is_lcc) {
+              diff = math.fraction(math.eval(a.amount_weighted)) - math.fraction(math.eval(b.amount_weighted));
+            } else {
+              diff = math.eval(a.amount) - math.eval(b.amount);
+            }
+            if (diff === 0) {
+              return Date.parse(a.time || "") - Date.parse(b.time || "");
+            }
+            return diff;
+          }).reverse()[0];
 
-        }else{
-          $rootScope.minimal_bid = bids.sort(function(a, b) {
-              if ($rootScope.auction_doc.auction_type == 'meat') {
-                var diff = math.fraction(a.amount_features) - math.fraction(b.amount_features);
-              } else {
-                var diff = a.amount - b.amount;
-              }
-              if (diff == 0) {
-                return Date.parse(a.time || "") - Date.parse(b.time || "");
-              }
-              return diff;
+        } else {
+          $rootScope.minimal_bid = bids.sort(function (a, b) {
+            if ($rootScope.is_meat) {
+              var diff = math.fraction(a.amount_features) - math.fraction(b.amount_features);
+            } else if ($rootScope.is_lcc) {
+              var diff = math.fraction(a.amount_weighted) - math.fraction(b.amount_weighted);
+            } else {
+              var diff = a.amount - b.amount;
+            }
+            if (diff === 0) {
+              return Date.parse(a.time || "") - Date.parse(b.time || "");
+            }
+            return diff;
           })[0];
         }
       }
     };
 
     // MAIN
-    $rootScope.main = function(init) {
-        $rootScope.check_authorization(
-            function(){
-                $rootScope.get_db_document(true);
-            }
-        );
+    $rootScope.main = function (init) {
+      $rootScope.check_authorization(
+        function () {
+          $rootScope.get_db_document(true);
+        }
+      );
     };
-    $rootScope.get_db_document = function(init){
-        $http.get(
-            '/api/auctions/' + AuctionConfig.auction_doc_id,
-            {
-                'params': {
-                  '_nonce': Math.random().toString()
-                }
-            }
-        ).then(
-            function(response) {
-                var doc = response.data;
-                if (init){
-                  $rootScope.http_error_timeout = $rootScope.default_http_error_timeout;
-                  $rootScope.title_ending = AuctionUtils.prepare_title_ending_data(doc, $rootScope.lang);
-                  if (AuctionUtils.UnsupportedBrowser()) {
-                    $timeout(function() {
-                      $rootScope.unsupported_browser = true;
-                      growl.error($filter('translate')('Your browser is out of date, and this site may not work properly.') + '<a style="color: rgb(234, 4, 4); text-decoration: underline;" href="http://browser-update.org/uk/update.html">' + $filter('translate')('Learn how to update your browser.') + '</a>', {
-                        ttl: -1,
-                        disableCountDown: true
-                      });
-                    }, 500);
-                  };
-                  $rootScope.is_esco = doc.procurementMethodType === 'esco';
-                  $rootScope.procurement_criteria = $rootScope.is_esco ? 'maximum' : 'minimum';
-
-                  $rootScope.replace_document(doc);
-
-                  if ($rootScope.auction_doc.current_stage == ($rootScope.auction_doc.stages.length - 1)) {
-                    $log.info({
-                      message: 'Auction ends already'
-                    });
-                  }else{
-                    $rootScope.start_sync();
+    $rootScope.get_db_document = function (init) {
+      $http.get(
+        '/api/auctions/' + AuctionConfig.auction_doc_id,
+        {
+          'params': {
+            '_nonce': Math.random().toString()
+          }
+        }
+      ).then(
+        function (response) {
+          var doc = response.data;
+          if (init) {
+            $rootScope.http_error_timeout = $rootScope.default_http_error_timeout;
+            $rootScope.title_ending = AuctionUtils.prepare_title_ending_data(doc, $rootScope.lang);
+            if (AuctionUtils.UnsupportedBrowser()) {
+              $timeout(function () {
+                $rootScope.unsupported_browser = true;
+                growl.error(
+                  $filter('translate')('Your browser is out of date, and this site may not work properly.') +
+                  '<a style="color: rgb(234, 4, 4); text-decoration: underline;" href="http://browser-update.org/uk/update.html">' +
+                  $filter('translate')('Learn how to update your browser.') + '</a>',
+                    {
+                    ttl: -1,
+                    disableCountDown: true
                   }
-                }else{
-                    $rootScope.replace_document(doc);
-                }
-                $rootScope.restart_retries = AuctionConfig.restart_retries;
-                $rootScope.document_exists = true;
-                // $timeout($rootScope.get_db_document, 2000);  // sync changes
-            },
-            function(response) {
-                if (response.status == 404) {
-                    $log.error({message: 'Not Found Error', error_data: response});
-                    $rootScope.document_not_found = true;
-                } else {
-                    $log.error({ message: 'Changes Server Error', error_data: err});
-                    $rootScope.http_error_timeout = $rootScope.http_error_timeout * 2;
-                    $timeout(
-                        function(){
-                            $rootScope.get_db_document(init)
-                        },
-                        $rootScope.http_error_timeout
-                    );
-                    if ($rootScope.restart_retries < 1){
-                        growl.error('Synchronization failed');
-                        $log.error({message: 'Synchronization failed'});
-
-                    } else if ($rootScope.restart_retries != AuctionConfig.restart_retries) {
-                        growl.warning('Internet connection is lost. Attempt to restart after 1 sec', {
-                          ttl: 1000
-                        });
-                    }
-                    $rootScope.restart_retries -= 1;
-                }
+                );
+              }, 500);
             }
-        );
-    };
-    $rootScope.start_sync = function(){
-        var schema = window.location.protocol === "https:" ?  "wss:": "ws:";
-        var relative_path = '/api/auctions/' + AuctionConfig.auction_doc_id + '/ws'
-        var uri = schema + "//" + window.location.host + relative_path;
+            $rootScope.is_esco = doc.procurementMethodType === 'esco';
+            $rootScope.procurement_criteria = $rootScope.is_esco ? 'maximum' : 'minimum';
 
-        // Create WebSocket connection.
-        var socket = new WebSocket(uri);
-        var heartbeat_interval = null, missed_heartbeats = 0;
-        socket.addEventListener('open', function (event) {
-            if (heartbeat_interval === null) {
-                heartbeat_interval = setInterval(function() {
-                    try {
-                        missed_heartbeats++;
-                        if (missed_heartbeats >= 3)
-                            throw new Error("Too many missed heartbeats.");
-                        socket.send("PONG");
-                    } catch(e) {
-                        clearInterval(heartbeat_interval);
-                        heartbeat_interval = null;
-                        console.warn("Closing connection. Reason: " + e.message);
-                        socket.close(1000, "Closing unhealthy connection");
-                    }
-                }, 5000);
+            $rootScope.auction_type = doc.auction_type || 'default'
+            $rootScope.is_default = $rootScope.auction_type === 'default';
+            $rootScope.is_meat = $rootScope.auction_type === 'meat';
+            $rootScope.is_lcc = $rootScope.auction_type === 'lcc';
+
+            $rootScope.replace_document(doc);
+
+            if ($rootScope.auction_doc.current_stage === ($rootScope.auction_doc.stages.length - 1)) {
+              $log.info({
+                message: 'Auction ends already'
+              });
+            } else {
+              $rootScope.start_sync();
             }
-        });
-        socket.addEventListener('message', function (event) {
-            if (event.data === "PING") {
-                missed_heartbeats = 0; // reset the counter for missed heartbeats
-                return;
-            }
-            var json = JSON.parse(event.data);
-            $rootScope.replace_document(json);
-            $rootScope.restart_retries = AuctionConfig.restart_retries;
-        });
-        socket.onerror = function (error) {
-            console.error(error);
-        };
-        socket.onclose = function () {
-            console.log("Close handler. Restart after a second");
-            $timeout(function() {
-                $rootScope.start_sync();
-            }, 1000);
+          } else {
+            $rootScope.replace_document(doc);
+          }
+          $rootScope.restart_retries = AuctionConfig.restart_retries;
+          $rootScope.document_exists = true;
+          // $timeout($rootScope.get_db_document, 2000);  // sync changes
+        },
+        function (response) {
+          if (response.status === 404) {
+            $log.error({message: 'Not Found Error', error_data: response});
+            $rootScope.document_not_found = true;
+          } else {
+            $log.error({message: 'Changes Server Error', error_data: err});
+            $rootScope.http_error_timeout = $rootScope.http_error_timeout * 2;
+            $timeout(
+              function () {
+                $rootScope.get_db_document(init)
+              },
+              $rootScope.http_error_timeout
+            );
+            if ($rootScope.restart_retries < 1) {
+              growl.error('Synchronization failed');
+              $log.error({message: 'Synchronization failed'});
 
-            if ($rootScope.restart_retries < 1){
-                growl.error('Synchronization failed', {ttl: 2000});
-                $log.error({message: 'Synchronization failed'});
-
-            } else if ($rootScope.restart_retries != AuctionConfig.restart_retries) {
-                growl.warning('Internet connection is lost. Attempt to restart after 1 sec', {
-                  ttl: 1000
-                });
+            } else if ($rootScope.restart_retries !== AuctionConfig.restart_retries) {
+              growl.warning('Internet connection is lost. Attempt to restart after 1 sec', {
+                ttl: 1000
+              });
             }
             $rootScope.restart_retries -= 1;
-        };
+          }
+        }
+      );
     };
-    $rootScope.check_authorization = function(on_finish){
-      on_finish = on_finish || function(){};
+    $rootScope.start_sync = function () {
+      var schema = window.location.protocol === "https:" ? "wss:" : "ws:";
+      var relative_path = '/api/auctions/' + AuctionConfig.auction_doc_id + '/ws'
+      var uri = schema + "//" + window.location.host + relative_path;
 
-      var start_anonymous_session = function(){
-        $timeout(function(){  // doesn't work without timeout
-            growl.info($filter('translate')('You are an observer and cannot bid.'), {
-                ttl: -1,
-                disableCountDown: true
-            });
+      // Create WebSocket connection.
+      var socket = new WebSocket(uri);
+      var heartbeat_interval = null, missed_heartbeats = 0;
+      socket.addEventListener('open', function (event) {
+        if (heartbeat_interval === null) {
+          heartbeat_interval = setInterval(function () {
+            try {
+              missed_heartbeats++;
+              if (missed_heartbeats >= 3)
+                throw new Error("Too many missed heartbeats.");
+              socket.send("PONG");
+            } catch (e) {
+              clearInterval(heartbeat_interval);
+              heartbeat_interval = null;
+              console.warn("Closing connection. Reason: " + e.message);
+              socket.close(1000, "Closing unhealthy connection");
+            }
+          }, 5000);
+        }
+      });
+      socket.addEventListener('message', function (event) {
+        if (event.data === "PING") {
+          missed_heartbeats = 0; // reset the counter for missed heartbeats
+          return;
+        }
+        var json = JSON.parse(event.data);
+        $rootScope.replace_document(json);
+        $rootScope.restart_retries = AuctionConfig.restart_retries;
+      });
+      socket.onerror = function (error) {
+        console.error(error);
+      };
+      socket.onclose = function () {
+        console.log("Close handler. Restart after a second");
+        $timeout(function () {
+          $rootScope.start_sync();
+        }, 1000);
+
+        if ($rootScope.restart_retries < 1) {
+          growl.error('Synchronization failed', {ttl: 2000});
+          $log.error({message: 'Synchronization failed'});
+
+        } else if ($rootScope.restart_retries !== AuctionConfig.restart_retries) {
+          growl.warning('Internet connection is lost. Attempt to restart after 1 sec', {
+            ttl: 1000
+          });
+        }
+        $rootScope.restart_retries -= 1;
+      };
+    };
+    $rootScope.check_authorization = function (on_finish) {
+      on_finish = on_finish || function () {
+      };
+
+      var start_anonymous_session = function () {
+        $timeout(function () {  // doesn't work without timeout
+          growl.info($filter('translate')('You are an observer and cannot bid.'), {
+            ttl: -1,
+            disableCountDown: true
+          });
         }, 1000);
         $log.info({message: 'Start anonymous session'});
       };
 
       if ($rootScope.query_params.bidder_id && $rootScope.query_params.hash) {
-          $log.info({
-            message: 'Start private session'
-          });
-          var data = {
-            bidder_id: $rootScope.query_params.bidder_id,
-            hash: $rootScope.query_params.hash,
-            client_id: $rootScope.client_id
-          };
-          $http.post(
-            '/api/auctions/' + AuctionConfig.auction_doc_id + '/check_authorization',
-            data
-          ).then(
-            function(response) {
-                $rootScope.bidder_id = $rootScope.query_params.bidder_id;
-                $rootScope.return_url = $rootScope.query_params.return_url;
-                $log.context["BIDDER_ID"] = $rootScope.bidder_id;
-                $log.info({
-                  message: "Authorization checked"
-                });
-                if ('coeficient' in response.data) {
-                    $rootScope.bidder_coeficient = math.fraction(response.data.coeficient);
-                    $log.info({message: "Get coeficient " + $rootScope.bidder_coeficient});
-                }
-                if(response.data.amount){
-                    $rootScope.form.bid = response.data.amount;
-                    $rootScope.allow_bidding = false;
-                    $log.info({ message: "RestoreBidAmount " + $rootScope.form.bid });
-                }else if(response.data.yearlyPaymentsPercentage){  // esco
-                  $rootScope.form.contractDurationYears = response.data.contractDurationYears;
-                  $rootScope.form.contractDurationDays = response.data.contractDurationDays;
-                  $rootScope.form.yearlyPaymentsPercentage = response.data.yearlyPaymentsPercentage * 100;
-                  if(response.data.changed){  // show edit form
-                    $rootScope.allow_bidding = false;
-                  }
-                }
-                on_finish();
-            },
-            function(response) {
-                if (response.status == 401 || response.status == 400) {
-                  $log.info({
-                      message: "Authorization failed: " + response.data
-                  });
-                  start_anonymous_session();
-                }else{
-                   $log.info({
-                      message: "Authorization exception: "+ response.status + " " + response.data
-                   });
-                   $timeout($rootScope.check_authorization, 1000);
-                }
-                on_finish();
+        $log.info({
+          message: 'Start private session'
+        });
+        var data = {
+          bidder_id: $rootScope.query_params.bidder_id,
+          hash: $rootScope.query_params.hash,
+          client_id: $rootScope.client_id
+        };
+        $http.post(
+          '/api/auctions/' + AuctionConfig.auction_doc_id + '/check_authorization',
+          data
+        ).then(
+          function (response) {
+            $rootScope.bidder_id = $rootScope.query_params.bidder_id;
+            $rootScope.return_url = $rootScope.query_params.return_url;
+            $log.context["BIDDER_ID"] = $rootScope.bidder_id;
+            $log.info({
+              message: "Authorization checked"
+            });
+            if ('coeficient' in response.data) {
+              $rootScope.bidder_coeficient = math.fraction(response.data.coeficient);
+              $log.info({message: "Get coeficient " + $rootScope.bidder_coeficient});
             }
-          );
+            if ('non_price_cost' in response.data) {
+              $rootScope.bidder_non_price_cost = math.fraction(response.data.non_price_cost);
+              $log.info({message: "Get non_price_cost " + $rootScope.bidder_non_price_cost});
+            }
+            if (response.data.amount) {
+              $rootScope.form.bid = response.data.amount;
+              $rootScope.allow_bidding = false;
+              $log.info({message: "RestoreBidAmount " + $rootScope.form.bid});
+            } else if (response.data.yearlyPaymentsPercentage) {  // esco
+              $rootScope.form.contractDurationYears = response.data.contractDurationYears;
+              $rootScope.form.contractDurationDays = response.data.contractDurationDays;
+              $rootScope.form.yearlyPaymentsPercentage = response.data.yearlyPaymentsPercentage * 100;
+              if (response.data.changed) {  // show edit form
+                $rootScope.allow_bidding = false;
+              }
+            }
+            on_finish();
+          },
+          function (response) {
+            if (response.status === 401 || response.status === 400) {
+              $log.info({
+                message: "Authorization failed: " + response.data
+              });
+              start_anonymous_session();
+            } else {
+              $log.info({
+                message: "Authorization exception: " + response.status + " " + response.data
+              });
+              $timeout($rootScope.check_authorization, 1000);
+            }
+            on_finish();
+          }
+        );
       } else {
-          start_anonymous_session();
-          on_finish();
+        start_anonymous_session();
+        on_finish();
       }
     };
-    $rootScope.replace_document = function(new_doc) {
-      if ($rootScope.auction_doc && $rootScope.auction_doc.modified == new_doc.modified) return;
+    $rootScope.replace_document = function (new_doc) {
+      if ($rootScope.auction_doc && $rootScope.auction_doc.modified === new_doc.modified) return;
 
       if ((angular.isUndefined($rootScope.auction_doc)) || (new_doc.current_stage - $rootScope.auction_doc.current_stage === 0) || (new_doc.current_stage === -1)) {
         if (angular.isUndefined($rootScope.auction_doc)) {
@@ -814,25 +867,25 @@ angular.module('auction').controller('AuctionController',[
       $rootScope.calculate_minimal_bid_amount();
       $rootScope.scroll_to_stage();
       $rootScope.show_bids_form();
-      if(!$rootScope.$$phase) {
+      if (!$rootScope.$$phase) {
         $rootScope.$apply();
       }
     };
-    $rootScope.calculate_rounds = function(argument) {
+    $rootScope.calculate_rounds = function (argument) {
       $rootScope.Rounds = [];
-      $rootScope.auction_doc.stages.forEach(function(item, index) {
-        if (item.type == 'pause') {
+      $rootScope.auction_doc.stages.forEach(function (item, index) {
+        if (item.type === 'pause') {
           $rootScope.Rounds.push(index);
         }
       });
     };
-    $rootScope.scroll_to_stage = function() {
+    $rootScope.scroll_to_stage = function () {
       AuctionUtils.scroll_to_stage($rootScope.auction_doc, $rootScope.Rounds);
     };
-    $rootScope.array = function(int) {
+    $rootScope.array = function (int) {
       return new Array(int);
     };
-    $rootScope.open_menu = function() {
+    $rootScope.open_menu = function () {
       var modalInstance = $aside.open({
         templateUrl: 'templates/menu.html',
         size: 'lg',
@@ -840,43 +893,84 @@ angular.module('auction').controller('AuctionController',[
       });
     };
     /* 2-WAY INPUT */
-    $rootScope.calculate_bid_temp = function() {
+    $rootScope.calculate_bid_temp = function () {
       var new_full_price;
-      if(angular.isDefined($rootScope.form.bid)){
+      if (angular.isDefined($rootScope.form.bid)) {
         var form_bid = Number(math.fraction(($rootScope.form.bid * 100).toFixed(), 100));
-        new_full_price = form_bid / $rootScope.bidder_coeficient;
+        if ($rootScope.is_meat) {
+          new_full_price = form_bid / $rootScope.bidder_coeficient;
+        } else if ($rootScope.is_lcc) {
+          new_full_price = form_bid + $rootScope.bidder_non_price_cost;
+        }
       }
       $rootScope.form.full_price = new_full_price;
     };
-    $rootScope.get_annual_costs_reduction = function(bidder_id) {  // esco
-      for (var initial_bid in $rootScope.auction_doc.initial_bids) {
-        if (bidder_id === $rootScope.auction_doc.initial_bids[initial_bid].bidder_id) {
-          return $rootScope.auction_doc.initial_bids[initial_bid].annualCostsReduction;
+    $rootScope.get_annual_costs_reduction = function (bidder_id) {  // esco
+      var initial_bids = $rootScope.auction_doc.initial_bids;
+      for (var initial_bid in initial_bids) {
+        if(initial_bids.hasOwnProperty(initial_bid)) {
+          if (bidder_id === initial_bids[initial_bid].bidder_id) {
+            return initial_bids[initial_bid].annualCostsReduction;
+          }
         }
       }
     };
-    $rootScope.calculate_full_price_temp = function() {
-      if ($rootScope.is_esco){
-          if ($rootScope.form.BidsForm.$valid) {
-            var bid = AuctionUtils.npv($rootScope.form.contractDurationYears,
-              $rootScope.form.contractDurationDays,
-              parseFloat(($rootScope.form.yearlyPaymentsPercentage / 100).toFixed(5)),
-              $rootScope.get_annual_costs_reduction($rootScope.bidder_id),
-              $rootScope.auction_doc.noticePublicationDate,
-              $rootScope.auction_doc.NBUdiscountRate
-            );
+    $rootScope.calculate_full_price_temp = function () {
+      if ($rootScope.is_esco) {
+        if ($rootScope.form.BidsForm.$valid) {
+          var bid = AuctionUtils.npv($rootScope.form.contractDurationYears,
+            $rootScope.form.contractDurationDays,
+            parseFloat(($rootScope.form.yearlyPaymentsPercentage / 100).toFixed(5)),
+            $rootScope.get_annual_costs_reduction($rootScope.bidder_id),
+            $rootScope.auction_doc.noticePublicationDate,
+            $rootScope.auction_doc.NBUdiscountRate
+          );
+        } else {
+          bid = 0;
+        }
+        $rootScope.form.full_price_temp = bid * $rootScope.bidder_coeficient;
+        $rootScope.form.full_price = $rootScope.form.full_price_temp;
+      } else {
+        var new_form_bid;
+        if (angular.isDefined($rootScope.form.full_price)) {
+          if ($rootScope.is_meat) {
+            new_form_bid = (math.fix((
+              math.fraction($rootScope.form.full_price) * $rootScope.bidder_coeficient
+            ) * 100)) / 100;
           } else {
-            bid = 0;
+            new_form_bid = (math.fix((
+              math.fraction($rootScope.form.full_price) - $rootScope.bidder_non_price_cost
+            ) * 100)) / 100;
           }
-          $rootScope.form.full_price_temp = bid * $rootScope.bidder_coeficient;
-          $rootScope.form.full_price = $rootScope.form.full_price_temp;
-      }else{
-          var new_form_bid;
-          if(angular.isDefined($rootScope.form.full_price)){
-            new_form_bid = (math.fix((math.fraction($rootScope.form.full_price) * $rootScope.bidder_coeficient) * 100)) / 100;
-          }
-          $rootScope.form.bid = new_form_bid;
+        }
+        $rootScope.form.bid = new_form_bid;
+      }
+    };
+    /* Inits */
+    $rootScope.init_stage_info = function (stage_obj) {
+      var current_stage = $rootScope.auction_doc.current_stage,
+        is_current_bidder = stage_obj.bidder_id === $rootScope.bidder_id,
+        is_finished = current_stage === ($rootScope.auction_doc.stages.length - 1),
+        amount = stage_obj.amount_features || stage_obj.amount_weighted || stage_obj.amount,
+        minimal_amount = $rootScope.minimal_bid.amount_features || $rootScope.minimal_bid.amount_weighted || $rootScope.minimal_bid.amount,
+        is_amount = (angular.isUndefined(stage_obj.type) || stage_obj.type === 'bids') && !angular.isUndefined(amount),
+        is_minimal = (amount === minimal_amount) && stage_obj.time === $rootScope.minimal_bid.time,
+        bidder_label = stage_obj.label,
+        is_changed = stage_obj.changed;
+
+      return {
+        amount: stage_obj.amount,
+        amount_features: stage_obj.amount_features,
+        amount_weighted: stage_obj.amount_weighted,
+        coeficient: stage_obj.coeficient,
+        non_price_cost: stage_obj.non_price_cost,
+        is_current_bidder: is_current_bidder,
+        is_finished: is_finished,
+        is_amount: is_amount,
+        is_minimal: is_minimal,
+        is_changed: is_changed,
+        bidder_label: bidder_label
       }
     };
     $rootScope.main();
-}]);
+  }]);

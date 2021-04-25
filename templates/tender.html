@@ -29,10 +29,18 @@
      Here are the http://www.enable-javascript.com
      instructions how to enable JavaScript in your web browser.
     </noscript>
+
     {% raw %}
-    <div ng-if="document_not_found" translate ng-cloak>
-        Not Found
+
+    <div class="header-fixed-space" ng-if="document_exists"></div>
+
+    <div ng-if="document_not_found" ng-cloak>
+        <div class="alert alert-danger">
+            <h4 translate>Error</h4>
+            <div translate>Auction id not found</div>
+        </div>
     </div>
+
     <div ng-if="document_exists" ng-cloak>
 
     <div class="container">
@@ -108,15 +116,16 @@
         </timer>
     </div>
 
+    <div growl></div>
+
     <div class="container">
-        <div growl ></div>
         <div class="row">
-            <div class="col-xs-12 hidden-xs">
+            <div class="auction-info col-xs-12">
                 <div class="page-header">
                     <h2>{{ auction_doc.tenderID||"-" }}</h2>
                 </div>
-                <span class="lead">{{ ( auction_doc.procuringEntity['name_'+ lang]|| auction_doc.procuringEntity.name||auction_doc.procuringEntity.name_en||auction_doc.procuringEntity.name_ru||"-" ) | characters:100 :true }}: {{ (auction_doc['title_'+ lang]||auction_doc['title']||auction_doc['title_en']||auction_doc['title_ru']||"") | characters:300 :true }}<span ng-if="auction_doc.lot">: {{(auction_doc.lot['title_'+ lang]||auction_doc.lot['title']||auction_doc.lot['title_en']||auction_doc.lot['title_ru']||"") | characters:300 :true}}</span></span>
-                <ul>
+                <div class="lead">{{ ( auction_doc.procuringEntity['name_'+ lang]|| auction_doc.procuringEntity.name||auction_doc.procuringEntity.name_en||auction_doc.procuringEntity.name_ru||"-" ) | characters:100 :true }}: {{ (auction_doc['title_'+ lang]||auction_doc['title']||auction_doc['title_en']||auction_doc['title_ru']||"") | characters:300 :true }}<span ng-if="auction_doc.lot">: {{(auction_doc.lot['title_'+ lang]||auction_doc.lot['title']||auction_doc.lot['title_en']||auction_doc.lot['title_ru']||"") | characters:300 :true}}</span></div>
+                <ul class="auction-info-items">
                     <li ng-repeat="item in auction_doc.items">
                         <span>{{ ( item['description_'+ lang] || item.description || item.description_en || item.description_ru || "-" ) | characters:500 :true  }}</span> - {{ item.quantity|formatnumber }} <span>{{item.unit['name_'+ lang]||item.unit.name||item.unit['name_en']||item.unit['name_ru']||item.unit.code||"-" }}</span>
                     </li>

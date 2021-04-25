@@ -46,7 +46,8 @@
     ],
 	"styles": [
 	    "node_modules/angular-growl-v2/build/angular-growl.css",
-        "src/assets/css/**/*.css"
+        "src/assets/css/bootstrap.min.css",
+        "src/assets/css/starter-template.css"
     ],
     "assets": "src/assets/base/**/*.*",
     "img": {

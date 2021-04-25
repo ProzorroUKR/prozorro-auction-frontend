@@ -78,7 +78,8 @@ angular.module('auction').config(
     'You are an observer and cannot bid.': 'You are an observer and cannot bid.',
     'Your browser is out of date, and this site may not work properly.': 'Your browser is out of date, and this site may not work properly.',
     'Learn how to update your browser.': 'Learn how to update your browser.',
-    'Not Found': 'Not Found',
+    'Error': 'Error',
+    'Auction id not found': 'Auction id not found',
     'to Mine': 'to Mine',
     'Clear': 'Clear',
     'to General': 'to General',
@@ -109,7 +110,10 @@ angular.module('auction').config(
     'savings': 'savings',
     'Normalized EIESC': 'Normalized EIESC:',
     'Current energy efficiency value of energy service contract': 'Current energy efficiency value of energy service contract',
-    'Calculated energy efficiency value of energy service contract': 'Calculated energy efficiency value of energy service contract'
+    'Calculated energy efficiency value of energy service contract': 'Calculated energy efficiency value of energy service contract',
+    'Acquisition costs': 'Acquisition costs',
+    'Weighted value': 'Weighted value',
+    'Other costs': 'Other costs'
   });
 
   $translateProvider.translations('uk', {
@@ -188,7 +192,8 @@ angular.module('auction').config(
     'You are an observer and cannot bid.': 'Ви спостерігач і не можете робити ставки.',
     'Your browser is out of date, and this site may not work properly.': 'Ваш браузер застарів, і цей сайт може некоректно працювати.',
     'Learn how to update your browser.': 'Дізнайтесь, як оновити Ваш браузер.',
-    'Not Found': 'Аукціону із даним Id не знайдено',
+    'Error': 'Помилка',
+    'Auction id not found': 'Аукціону із даним id не знайдено',
     'to Mine': 'до Моєї',
     'Clear': 'Очистити',
     'to General': 'до Загальної',
@@ -220,7 +225,10 @@ angular.module('auction').config(
     'savings': 'економії',
     'Normalized EIESC': 'Приведений ПЕД:',
     'Current energy efficiency value of energy service contract': 'Поточний показник енергоефективності енергосервісного договору',
-    'Calculated energy efficiency value of energy service contract': 'Приведений показник енергоефективності енергосервісного договору'
+    'Calculated energy efficiency value of energy service contract': 'Приведений показник енергоефективності енергосервісного договору',
+    'Acquisition costs': 'Вартість придбання',
+    'Weighted value': 'Зважена вартість',
+    'Other costs': 'Інші витрати'
   });
 
 
@@ -300,7 +308,8 @@ angular.module('auction').config(
     'You are an observer and cannot bid.': 'Вы наблюдатель и не можете делать ставки.',
     'Your browser is out of date, and this site may not work properly.': 'Ваш браузер устарел, и этот сайт может некорректно работать.',
     'Learn how to update your browser.': 'Узнайте, как обновить Ваш браузер.',
-    'Not Found': 'Аукцион по данному Id не найден',
+    'Error': 'Ошибка',
+    'Auction id not found': 'Аукцион по данному id не найден',
     'to Mine': 'к Моей',
     'Clear': 'Очистить',
     'to General': 'к Общей',
@@ -332,6 +341,9 @@ angular.module('auction').config(
     'savings': 'экономии',
     'Normalized EIESC': 'Приведенный ПЕД:',
     'Current energy efficiency value of energy service contract': 'Текущий показатель энергоэффективности энергосервисного договора',
-    'Calculated energy efficiency value of energy service contract': 'Рассчитанный показатель энергоэффективности энергосервисного договора'
+    'Calculated energy efficiency value of energy service contract': 'Рассчитанный показатель энергоэффективности энергосервисного договора',
+    'Acquisition costs': 'Стоимость приобретения',
+    'Weighted value': 'Взвешенная стоимость',
+    'Other costs': 'Другие расходы'
   });
 });
