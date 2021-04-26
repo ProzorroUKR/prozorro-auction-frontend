@@ -102,54 +102,6 @@ angular.module('auction').controller('AuctionController', [
       }
     });
     /*      Time tick events    */
-    $rootScope.title_timer = function () {
-      var SECOND = 1000;
-      var DELIMITER_SPACE = ' ';
-      var DELIMITER_COLON = ':';
-      var NULLABLE_TIME = '00'; // with pad
-
-      var countdown = $rootScope.info_timer ? $rootScope.info_timer.countdown : 0;
-      var time = 0;
-      var titleText = [];
-      var interval = $interval(setTime, SECOND);
-
-      setTime();
-
-      function setTime() {
-        time = AuctionUtils.getTimeByCountdown(countdown);
-        titleText = [];
-
-        if (time.days !== NULLABLE_TIME) {
-          titleText = titleText.concat([
-            time.days,
-            DELIMITER_SPACE,
-            $filter('translate')('days'),
-            DELIMITER_SPACE,
-          ]);
-        }
-
-        if (time.hours !== NULLABLE_TIME) {
-          titleText = titleText.concat([
-            time.hours,
-            DELIMITER_COLON,
-          ]);
-        }
-
-        titleText = titleText.concat([
-          time.minutes,
-          DELIMITER_COLON,
-          time.seconds,
-        ]);
-
-        $rootScope.time_in_title = titleText.join('');
-
-        if (--countdown < 0) {
-          $interval.cancel(interval);
-          interval = undefined;
-        }
-      }
-    }
-
     $rootScope.$on('timer-tick', function (event) {
       const date = new Date();
 
@@ -160,6 +112,10 @@ angular.module('auction').controller('AuctionController', [
         if (isUntilYourTurn && event.targetScope.minutes === 1 && event.targetScope.seconds === 50) {
           $rootScope.check_authorization();
         }
+
+        $timeout(function () {
+            $rootScope.time_in_title = AuctionUtils.title_timer(event.targetScope);
+        }, 0);
 
         return;
       }
@@ -216,35 +172,18 @@ angular.module('auction').controller('AuctionController', [
       return $rootScope.view_bids_form;
     };
 
-    $rootScope.sync_times_with_server = function (callback) {
+    $rootScope.sync_times_with_server = function () {
       $http.get('/get_current_server_time', {
         'params': {
           '_nonce': Math.random().toString()
         }
       }).then(function (data) {
-        $rootScope.last_sync = new Date(new Date(data.headers().date));
+        var date_server = new Date(data.headers().date);
 
-        $rootScope.info_timer = AuctionUtils.prepare_info_timer_data(
-          $rootScope.last_sync,
-          $rootScope.auction_doc,
-          $rootScope.bidder_id,
-          $rootScope.Rounds,
-        );
+        $rootScope.last_sync_delta = new Date() - date_server;
 
-        $log.debug({
-          message: "Info timer data:",
-          info_timer: $rootScope.info_timer,
-        });
-
-        $rootScope.progres_timer = AuctionUtils.prepare_progress_timer_data(
-          $rootScope.last_sync,
-          $rootScope.auction_doc,
-        );
-
-        $log.debug({
-          message: "Progress timer data:",
-          progress_timer: $rootScope.progres_timer
-        });
+        $rootScope.update_info_timer(date_server);
+        $rootScope.update_progress_timer(date_server);
 
         if ($rootScope.auction_doc.current_stage === -1) {
           if ($rootScope.progres_timer.countdown_seconds < 900) {
@@ -256,14 +195,64 @@ angular.module('auction').controller('AuctionController', [
             }, ($rootScope.progres_timer.countdown_seconds - 900) * 1000);
           }
         }
-
-        if (callback !== undefined) {
-          callback();
-        }
       }, function () {
         $log.error("get_current_server_time error");
       });
     };
+
+    $rootScope.sync_times_with_server_last_sync = function () {
+      if ($rootScope.last_sync_delta) {
+        var date = new Date();
+        date.setSeconds(date.getSeconds() + $rootScope.last_sync_delta / 1000)
+        $rootScope.update_info_timer(date);
+        $rootScope.update_progress_timer(date);
+      }
+    }
+
+    $rootScope.sync_times_with_server_last_sync_repeat = function () {
+      $timeout(function () {
+        if ($rootScope.auction_doc.current_stage !== ($rootScope.auction_doc.stages.length - 1)) {
+          $rootScope.sync_times_with_server_last_sync();
+          $rootScope.sync_times_with_server_last_sync_repeat();
+        }
+      }, 10000);
+    }
+
+    $rootScope.update_info_timer = function (date) {
+      var info_timer = AuctionUtils.prepare_info_timer_data(
+        date, $rootScope.auction_doc, $rootScope.bidder_id, $rootScope.Rounds,
+      );
+      if (angular.isUndefined($rootScope.info_timer)) {
+        $rootScope.info_timer = info_timer;
+      } else {
+        $rootScope.info_timer.countdown = info_timer.countdown;
+        $rootScope.info_timer.start_time = info_timer.start_time;
+        $rootScope.info_timer.msg = info_timer.msg;
+        $rootScope.info_timer.msg_ending = info_timer.msg_ending;
+      }
+
+      $log.debug({
+        message: "Info timer data:",
+        info_timer: $rootScope.info_timer,
+      });
+    }
+
+    $rootScope.update_progress_timer = function (date) {
+      var progres_timer = AuctionUtils.prepare_progress_timer_data(
+        date, $rootScope.auction_doc,
+      );
+      if (angular.isUndefined($rootScope.progres_timer)) {
+        $rootScope.progres_timer = progres_timer;
+      } else {
+        $rootScope.progres_timer.countdown_seconds = progres_timer.countdown_seconds;
+        $rootScope.progres_timer.rounds_seconds = progres_timer.rounds_seconds;
+      }
+
+      $log.debug({
+        message: "Progress timer data:",
+        progress_timer: $rootScope.progres_timer
+      });
+    }
 
     $rootScope.warning_post_bid = function () {
       growl.error('Unable to place a bid. Check that no more than 2 auctions are simultaneously opened in your browser.');
@@ -676,6 +665,7 @@ angular.module('auction').controller('AuctionController', [
               });
             } else {
               $rootScope.start_sync();
+              $rootScope.sync_times_with_server_last_sync_repeat();
             }
           } else {
             $rootScope.replace_document(doc);
@@ -862,7 +852,7 @@ angular.module('auction').controller('AuctionController', [
         $rootScope.allow_bidding = true;
       }
       $rootScope.auction_doc = new_doc;
-      $rootScope.sync_times_with_server($rootScope.title_timer);
+      $rootScope.sync_times_with_server();
       $rootScope.calculate_rounds();
       $rootScope.calculate_minimal_bid_amount();
       $rootScope.scroll_to_stage();
