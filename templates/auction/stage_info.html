@@ -1,0 +1,145 @@
+{% raw %}
+<div class="stage-info"
+     ng-init="stage_info = init_stage_info(stage_obj)">
+    <div class="stage-info-lining"
+         ng-class="{'auction-with-two-prices': (is_meat || is_lcc) && stage_info.is_current_bidder && !stage_info.is_finished}">
+        <span class="stage-info-item stage-label"
+              ng-if="!stage_info.is_current_bidder">{{ (stage_info.bidder_label[lang] || "-") | normalize_bidder_label }}</span>
+        <span class="stage-info-item stage-label"
+              ng-if="stage_info.is_current_bidder" translate>You</span>
+        <span class="stage-info-item stage-amount"
+              ng-if="stage_info.is_amount"
+              ng-class="{true: 'minimal-amount', false: 'default-amount'}[stage_info.is_minimal]">
+
+            <span class="label-price">
+
+                <span ng-if="stage_info.is_current_bidder && (is_meat || is_lcc) && !stage_info.is_finished">
+
+                    <span class="label-price normalized-price"
+                          ng-if="is_meat"
+                          ng-class="{'font-weight-bold': stage_info.is_changed}">
+                        <span class="price-type" translate>
+                            Normalized Price
+                        </span>
+                        {{ stage_info.amount_features|fraction }}
+                        <span class="amount-currency"
+                              ng-if="!angular.isUndefined(stage_info.amount_features)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span>
+                    </span>
+
+                    <span class="label-price normalized-price"
+                          ng-if="is_lcc"
+                          ng-class="{'font-weight-bold': stage_info.is_changed}">
+                        <span class="price-type" translate>
+                            Weighted value
+                        </span>
+                        {{ stage_info.amount_weighted|fraction }}
+                        <span class="amount-currency"
+                              ng-if="!angular.isUndefined(stage_info.amount_weighted)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span>
+                    </span>
+
+                    <span class="label-price full-price"
+                          ng-if="is_meat"
+                          ng-class="{'font-weight-bold': stage_info.is_changed}">
+                        <span class="price-type" translate>
+                            Full Price
+                        </span>
+                        {{ stage_info.amount_features|fraction:bidder_coeficient:is_esco }}
+                        <span class="amount-currency"
+                              ng-if="!angular.isUndefined(stage_info.amount_features)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span>
+                    </span>
+
+                    <span class="label-price full-price"
+                          ng-if="is_lcc"
+                          ng-class="{'font-weight-bold': stage_info.is_changed}">
+                        <span class="price-type" translate>
+                            Acquisition costs
+                        </span>
+                        {{ stage_info.amount_weighted - bidder_non_price_cost|fraction }}
+                        <span class="amount-currency"
+                              ng-if="!angular.isUndefined(stage_info.amount_weighted)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span>
+                    </span>
+
+                </span>
+
+                <span ng-if="!stage_info.is_current_bidder && is_meat && !stage_info.is_finished">
+                    <span ng-class="{'font-weight-bold': stage_info.is_changed}">
+                        <span ng-if="stage_info.amount_features" class="price-type" translate>
+                            Normalized Price
+                        </span>
+                        {{ stage_info.amount_features|fraction }}
+                        <span class="amount-currency"
+                              ng-if="!angular.isUndefined(stage_info.amount_features)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span>
+                    </span>
+                </span>
+
+                <span ng-if="!stage_info.is_current_bidder && is_lcc && !stage_info.is_finished">
+                    <span ng-class="{'font-weight-bold': stage_info.is_changed}">
+                        <span ng-if="stage_info.amount_weighted" class="price-type" translate>
+                            Weighted value
+                        </span>
+                        {{ stage_info.amount_weighted|fraction }}
+                        <span class="amount-currency"
+                              ng-if="!angular.isUndefined(stage_info.amount_weighted)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span>
+                    </span>
+                </span>
+
+                <span ng-if="is_meat && stage_info.is_finished"
+                      uib-tooltip="{{ stage_info.amount }} / {{ stage_info.coeficient| eval_string }} = {{ stage_info.amount_features|eval_string }}"
+                      tooltip-trigger="click"
+                      tooltip-placement="bottom"
+                      tooltip-append-to-body="true">
+                    <span class="label-price" ng-class="{'font-weight-bold': stage_info.is_changed}">
+                        {{ stage_info.amount|fraction }}
+                        <span class="amount-currency" ng-if="!angular.isUndefined(stage_info.amount)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span> / {{ stage_info.coeficient|fraction }}
+                    </span>
+                </span>
+
+                <span ng-if="is_lcc && stage_info.is_finished"
+                      uib-tooltip="{{ stage_info.amount }} + {{ stage_info.non_price_cost| eval_string }} = {{ stage_info.amount_weighted|eval_string }}"
+                      tooltip-trigger="click"
+                      tooltip-placement="bottom"
+                      tooltip-append-to-body="true">
+                    <span class="label-price" ng-class="{'font-weight-bold': stage_info.is_changed}">
+                        {{ stage_info.amount|fraction }}
+                        <span class="amount-currency" ng-if="!angular.isUndefined(stage_info.amount)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span>
+                        + {{ stage_info.non_price_cost|fraction }}
+                        <span class="amount-currency" ng-if="!angular.isUndefined(stage_info.amount)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span>
+                    </span>
+                </span>
+
+                <span ng-if="is_default">
+                    <span class="label-price" ng-class="{'font-weight-bold': stage_info.is_changed}">
+                        {{ stage_info.amount|fraction }}
+                        <span class="amount-currency" ng-if="!angular.isUndefined(stage_info.amount)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span>
+                    </span>
+                </span>
+
+            </span>
+
+            <span class="label-minimum" ng-if="stage_info.is_minimal">
+                {{ procurement_criteria|translate }}
+            </span>
+        </span>
+    </div>
+</div>
+{% endraw %}

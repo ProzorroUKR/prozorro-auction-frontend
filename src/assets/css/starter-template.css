@@ -7,8 +7,10 @@
   display: none !important;
 }
 body {
-  padding-top: 73px;
   padding-bottom: 196px;
+}
+body .header-fixed-space {
+  padding-top: 73px;
 }
 .col-xs-1,
 .col-xs-2,
@@ -24,6 +26,9 @@ body {
 .col-xs-12 {
   padding-right: 0;
   padding-left: 0;
+}
+.font-weight-bold {
+  font-weight: bold;
 }
 /*----- Header -----*/
 /* Header auction*/
@@ -90,6 +95,20 @@ body {
     font-size: 22px;
   }
 }
+/* Auction information */
+@media (max-width: 768px) {
+  .auction-info > * {
+    padding: 0 5px;
+  }
+}
+.auction-info-items {
+  margin-top: 10px;
+}
+@media (max-width: 768px) {
+  .auction-info-items {
+    list-style: none;
+  }
+}
 /* Round information */
 .round-information {
   background-color: #a1a1a1;
@@ -97,6 +116,7 @@ body {
   color: #fff;
   text-align: center;
   padding: 0 6px;
+  width: 200px;
 }
 .round-number {
   font-size: 23px;
@@ -224,7 +244,7 @@ body {
   font-size: 16px;
 }
 .future-stage .minimal-amount {
-  background-color: transparent;
+  background-color: #f2f2f2;
 }
 .future-stage .label-minimum {
   color: #fb8484;
@@ -237,7 +257,7 @@ body {
 }
 /* Current stage*/
 .my-bid-stage {
-  background-color: #f2f2f2;
+  background-color: #f8f8f8;
   overflow: hidden;
 }
 /*----- Fixed bottom -----*/
@@ -277,8 +297,8 @@ body {
 .main-price-block .normalized-price-group span {
   display: none;
 }
-.full-price-group > span:first-child,
-.normalized-price-group > span:first-child {
+.full-price-group > :first-child,
+.normalized-price-group > :first-child {
   font-weight: bold;
 }
 .bidder-coeficient-wrap {
@@ -303,14 +323,17 @@ body {
   font-size: 18px;
   font-weight: normal;
 }
+.default-bids-form #cancel-bid-button,
+.default-bids-form #place-bid-button,
 .default-bids-form #edit-bid-button,
-.default-bids-form #place-bid-button {
+.default-bids-form #clear-bid-button {
   margin-right: 15px;
 }
 .btn {
   border-radius: 0;
 }
 .auction-with-one-price .input-group-btn {
+  padding-right: 15px;
   padding-top: 0;
 }
 /*Mobile view */
@@ -320,7 +343,7 @@ body {
     padding-left: 5px;
   }
   .stage-amount {
-    border-radius: 6px;
+    border-radius: 2px;
   }
   .price-inform-block {
     display: none;
@@ -381,7 +404,7 @@ body {
   #place-bid-button,
   #edit-bid-button,
   #clear-bid-button {
-    border-radius: 0px;
+    border-radius: 0;
     white-space: normal;
     float: left;
     padding: 6px 12px;

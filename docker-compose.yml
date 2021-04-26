@@ -45,8 +45,8 @@ services:
             - MONGODB_URL=mongodb://root:example@mongo:27017/?replicaSet=rs0
             - TEST_MODE=1
             - PYTHONUNBUFFERED=1
-            - PUBLIC_API_HOST=https://lb-api-sandbox-2.prozorro.gov.ua/api/2.5/tenders
-            - API_HOST=https://lb-api-sandbox-2.prozorro.gov.ua/api/2.5/tenders
+            - PUBLIC_API_HOST=https://api
+            - API_HOST=https://api
             - API_TOKEN=auction
             - FEED_STEP_INTERVAL=5
             - API_LIMIT=50
@@ -56,13 +56,14 @@ services:
         networks:
             - default
             - openprocurementapi_apinet
+            - dev-env
     chronograph:
         image: docker-registry.prozorro.gov.ua/cdb/prozorro-auction:latest
         environment:
             - MONGODB_URL=mongodb://root:example@mongo:27017/?replicaSet=rs0
             - PYTHONUNBUFFERED=1
-            - PUBLIC_API_HOST=https://lb-api-sandbox-2.prozorro.gov.ua/api/2.5/tenders
-            - API_HOST=https://lb-api-sandbox-2.prozorro.gov.ua/api/2.5/tenders
+            - PUBLIC_API_HOST=https://api
+            - API_HOST=https://api
             - API_TOKEN=auction
             - DS_HOST=http://ds
             - DS_USER=test
@@ -73,6 +74,7 @@ services:
         networks:
             - default
             - openprocurementapi_apinet
+            - dev-env
     frontend:
         image: docker-registry.prozorro.gov.ua/cdb/prozorro-auction-frontend:latest
         volumes:
@@ -87,4 +89,6 @@ services:
 networks:
     default: {}
     openprocurementapi_apinet:
+        external: true
+    dev-env:
         external: true
