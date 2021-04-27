@@ -13,28 +13,36 @@ angular.module('auction').factory('AuctionUtils', [
       return (d < 10) ? '0' + d.toString() : d.toString();
     }
 
-    /**
-     * @param {number} countdown - from prepare_info_timer_data
-     * @returns {CustomTime}
-     */
-    function getTimeByCountdown(countdown) {
-      var milliseconds = (countdown || 0) * 1000;
-      var days, hours, minutes, seconds;
+    function title_timer(time) {
+      var DELIMITER_SPACE = ' ';
+      var DELIMITER_COLON = ':';
+      var NULLABLE_TIME = 0; // with pad
 
-      seconds = Math.floor(milliseconds / 1000);
-      minutes = Math.floor(seconds / 60);
-      seconds = seconds % 60;
-      hours = Math.floor(minutes / 60);
-      minutes = minutes % 60;
-      days = Math.floor(hours / 24);
-      hours = hours % 24;
+      var titleText = [];
 
-      return {
-        days: pad(days).toString(),
-        hours: pad(hours).toString(),
-        minutes: pad(minutes).toString(),
-        seconds: pad(seconds).toString(),
-      };
+      if (time.days !== NULLABLE_TIME) {
+        titleText = titleText.concat([
+          pad(time.days),
+          DELIMITER_SPACE,
+          $filter('translate')('days'),
+          DELIMITER_SPACE,
+        ]);
+      }
+
+      if (time.hours !== NULLABLE_TIME) {
+        titleText = titleText.concat([
+          pad(time.hours),
+          DELIMITER_COLON,
+        ]);
+      }
+
+      titleText = titleText.concat([
+        pad(time.minutes),
+        DELIMITER_COLON,
+        pad(time.seconds),
+      ]);
+
+      return titleText.join('');
     }
 
     function prepare_info_timer_data(current_time, auction, bidder_id, Rounds) {
@@ -514,6 +522,7 @@ angular.module('auction').factory('AuctionUtils', [
     return {
       'prepare_info_timer_data': prepare_info_timer_data,
       'prepare_progress_timer_data': prepare_progress_timer_data,
+      'title_timer': title_timer,
       'get_bidder_id': get_bidder_id,
       'format_date': format_date,
       'get_round_data': get_round_data,
@@ -528,6 +537,5 @@ angular.module('auction').factory('AuctionUtils', [
       'detectIE': detectIE,
       'UnsupportedBrowser': UnsupportedBrowser,
       'npv': npv,
-      'getTimeByCountdown': getTimeByCountdown,
     };
 }]);
