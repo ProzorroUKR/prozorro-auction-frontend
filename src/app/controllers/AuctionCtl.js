@@ -707,28 +707,31 @@ angular.module('auction').controller('AuctionController', [
       var uri = schema + "//" + window.location.host + relative_path;
 
       // Create WebSocket connection.
-      var socket = new WebSocket(uri);
-      var heartbeat_interval = null, missed_heartbeats = 0;
+      var socket = new WebSocket(uri),
+          heartbeat_delay = 5000,
+          heartbeat_timeout = null,
+          heartbeats_missed = 0;
       socket.addEventListener('open', function (event) {
-        if (heartbeat_interval === null) {
-          heartbeat_interval = setInterval(function () {
+        if (heartbeat_timeout === null) {
+          heartbeat_timeout = $timeout(function heartbeat() {
             try {
-              missed_heartbeats++;
-              if (missed_heartbeats >= 3)
+              heartbeats_missed++;
+              if (heartbeats_missed >= 3) {
                 throw new Error("Too many missed heartbeats.");
+              }
               socket.send("PONG");
+              heartbeat_timeout = $timeout(heartbeat, heartbeat_delay);
             } catch (e) {
-              clearInterval(heartbeat_interval);
-              heartbeat_interval = null;
+              heartbeat_timeout = null;
               console.warn("Closing connection. Reason: " + e.message);
               socket.close(1000, "Closing unhealthy connection");
             }
-          }, 5000);
+          }, heartbeat_delay);
         }
       });
       socket.addEventListener('message', function (event) {
         if (event.data === "PING") {
-          missed_heartbeats = 0; // reset the counter for missed heartbeats
+          heartbeats_missed = 0; // reset the counter for missed heartbeats
           return;
         }
         var json = JSON.parse(event.data);
