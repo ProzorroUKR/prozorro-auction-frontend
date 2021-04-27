@@ -756,8 +756,7 @@ angular.module('auction').controller('AuctionController', [
       };
     };
     $rootScope.check_authorization = function (on_finish) {
-      on_finish = on_finish || function () {
-      };
+      on_finish = on_finish || function () {};
 
       var start_anonymous_session = function () {
         $timeout(function () {  // doesn't work without timeout
