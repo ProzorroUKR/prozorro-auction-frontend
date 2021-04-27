@@ -182,17 +182,17 @@ angular.module('auction').controller('AuctionController', [
 
         $rootScope.last_sync_delta = new Date() - date_server;
 
-        $rootScope.update_info_timer(date_server);
-        $rootScope.update_progress_timer(date_server);
+        $rootScope.update_info_timer(date_server, true);
+        $rootScope.update_progress_timer(date_server, true);
 
         if ($rootScope.auction_doc.current_stage === -1) {
-          if ($rootScope.progres_timer.countdown_seconds < 900) {
+          if ($rootScope.progress_timer.countdown_seconds < 900) {
             $rootScope.start_changes_feed = true;
           } else {
             $timeout(function () {
               $rootScope.follow_login = true;
               $rootScope.start_changes_feed = true;
-            }, ($rootScope.progres_timer.countdown_seconds - 900) * 1000);
+            }, ($rootScope.progress_timer.countdown_seconds - 900) * 1000);
           }
         }
       }, function () {
@@ -218,17 +218,14 @@ angular.module('auction').controller('AuctionController', [
       }, 10000);
     }
 
-    $rootScope.update_info_timer = function (date) {
+    $rootScope.update_info_timer = function (date, reset) {
       var info_timer = AuctionUtils.prepare_info_timer_data(
         date, $rootScope.auction_doc, $rootScope.bidder_id, $rootScope.Rounds,
       );
-      if (angular.isUndefined($rootScope.info_timer)) {
+      if (angular.isUndefined($rootScope.info_timer) || reset) {
         $rootScope.info_timer = info_timer;
       } else {
         $rootScope.info_timer.countdown = info_timer.countdown;
-        $rootScope.info_timer.start_time = info_timer.start_time;
-        $rootScope.info_timer.msg = info_timer.msg;
-        $rootScope.info_timer.msg_ending = info_timer.msg_ending;
       }
 
       $log.debug({
@@ -237,20 +234,19 @@ angular.module('auction').controller('AuctionController', [
       });
     }
 
-    $rootScope.update_progress_timer = function (date) {
-      var progres_timer = AuctionUtils.prepare_progress_timer_data(
+    $rootScope.update_progress_timer = function (date, reset) {
+      var progress_timer = AuctionUtils.prepare_progress_timer_data(
         date, $rootScope.auction_doc,
       );
-      if (angular.isUndefined($rootScope.progres_timer)) {
-        $rootScope.progres_timer = progres_timer;
+      if (angular.isUndefined($rootScope.progress_timer) || reset) {
+        $rootScope.progress_timer = progress_timer;
       } else {
-        $rootScope.progres_timer.countdown_seconds = progres_timer.countdown_seconds;
-        $rootScope.progres_timer.rounds_seconds = progres_timer.rounds_seconds;
+        $rootScope.progress_timer.countdown_seconds = progress_timer.countdown_seconds;
       }
 
       $log.debug({
         message: "Progress timer data:",
-        progress_timer: $rootScope.progres_timer
+        progress_timer: $rootScope.progress_timer
       });
     }
 
