@@ -210,12 +210,13 @@ angular.module('auction').controller('AuctionController', [
     }
 
     $rootScope.sync_times_with_server_last_sync_repeat = function () {
+      var sync_delay = 10 * 1000
       $timeout(function () {
         if ($rootScope.auction_doc.current_stage !== ($rootScope.auction_doc.stages.length - 1)) {
           $rootScope.sync_times_with_server_last_sync();
           $rootScope.sync_times_with_server_last_sync_repeat();
         }
-      }, 10000);
+      }, sync_delay);
     }
 
     $rootScope.update_info_timer = function (date, reset) {
