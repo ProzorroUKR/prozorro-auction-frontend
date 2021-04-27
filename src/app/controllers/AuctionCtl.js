@@ -708,14 +708,18 @@ angular.module('auction').controller('AuctionController', [
           heartbeat_delay = 5000,
           heartbeat_timeout = null,
           heartbeats_missed = 0;
-      socket.addEventListener('open', function (event) {
+
+      socket.onopen = function (event) {
         if (heartbeat_timeout === null) {
           heartbeat_timeout = $timeout(function heartbeat() {
-            try {
-              heartbeats_missed++;
+            var check_heartbeats_missed = function () {
               if (heartbeats_missed >= 3) {
                 throw new Error("Too many missed heartbeats.");
               }
+            }
+            try {
+              heartbeats_missed++;
+              check_heartbeats_missed();
               socket.send("PONG");
               heartbeat_timeout = $timeout(heartbeat, heartbeat_delay);
             } catch (e) {
@@ -725,8 +729,9 @@ angular.module('auction').controller('AuctionController', [
             }
           }, heartbeat_delay);
         }
-      });
-      socket.addEventListener('message', function (event) {
+      };
+
+      socket.onmessage = function (event) {
         if (event.data === "PING") {
           heartbeats_missed = 0; // reset the counter for missed heartbeats
           return;
@@ -734,10 +739,12 @@ angular.module('auction').controller('AuctionController', [
         var json = JSON.parse(event.data);
         $rootScope.replace_document(json);
         $rootScope.restart_retries = AuctionConfig.restart_retries;
-      });
+      };
+
       socket.onerror = function (error) {
         console.error(error);
       };
+
       socket.onclose = function () {
         console.log("Close handler. Restart after a second");
         $timeout(function () {
