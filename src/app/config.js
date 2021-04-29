@@ -55,6 +55,7 @@ angular.module('auction').config([
           sendLog(msg, "ERROR", $delegate.context);
           originalError.apply($delegate, arguments);
         };
+        $delegate.error.logs = originalError.logs;  // angular-mocks attribute
 
         return $delegate;
       }

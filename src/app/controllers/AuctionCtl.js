@@ -18,8 +18,11 @@ angular.module('auction').controller('AuctionController', [
      * @param {LanguageKey} langKey
      */
     var setDocumentLang = function (langKey) {
-      document.documentElement.lang = langKey;
-      document.querySelector('[http-equiv="Content-Language"]').setAttribute('content', localesMap[langKey]);
+      var element = document.querySelector('[http-equiv="Content-Language"]');
+      if (element) {
+        document.documentElement.lang = langKey;
+        element.setAttribute('content', localesMap[langKey]);
+      }
     }
 
     if (AuctionUtils.inIframe() && 'localhost' !== location.hostname) {
@@ -80,6 +83,7 @@ angular.module('auction').controller('AuctionController', [
     } else {
       $rootScope.lang = $translate.storage().get($translate.storageKey()) || $rootScope.lang;
     }
+
     setDocumentLang($rootScope.lang);
 
     /*      Time stopped events    */
@@ -88,8 +92,9 @@ angular.module('auction').controller('AuctionController', [
         if (!$rootScope.auction_not_started) {
           $rootScope.auction_not_started = $timeout(function () {
             if ($rootScope.auction_doc.current_stage === -1) {
-              growl.warning('Please wait for the auction start.', {ttl: 120000, disableCountDown: true});
-              $log.info({message: "Please wait for the auction start."});
+              var msg = 'Please wait for the auction start.';
+              growl.warning(msg, {ttl: 120000, disableCountDown: true});
+              $log.info({message: msg});
             }
           }, 10000);
         }
@@ -393,7 +398,6 @@ angular.module('auction').controller('AuctionController', [
               'His proposal will be considered first, since it has been submitted earlier.'
           });
         }
-        ;
         $rootScope.form.active = true;
         $timeout(function () {
           $rootScope.form.active = false;
@@ -676,7 +680,7 @@ angular.module('auction').controller('AuctionController', [
             $log.error({message: 'Not Found Error', error_data: response});
             $rootScope.document_not_found = true;
           } else {
-            $log.error({message: 'Changes Server Error', error_data: err});
+            $log.error({message: 'Changes Server Error', error_data: response});
             $rootScope.http_error_timeout = $rootScope.http_error_timeout * 2;
             $timeout(
               function () {

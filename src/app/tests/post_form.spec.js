@@ -5,7 +5,11 @@ describe('Post Bid Form Tests', function () {
   beforeEach(inject(function ($injector, _$controller_, _$rootScope_, AuctionUtils) {
     scope = _$rootScope_.$new();
     rootScope = _$rootScope_;
-    controller = _$controller_('AuctionController', {$scope: scope, AuctionUtils: AuctionUtils, $rootScope: rootScope});
+    controller = _$controller_('AuctionController', {
+      $scope: scope,
+      AuctionUtils: AuctionUtils,
+      $rootScope: rootScope
+    });
   }));
 
   beforeEach(inject(function ($compile, $rootScope) {

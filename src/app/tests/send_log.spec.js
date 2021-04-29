@@ -9,7 +9,7 @@ describe('sendLog', function () {
 
   it('should send log', function () {
     $httpBackend.expectPOST(
-      '/log',
+      '/api/log',
       function (data) {
         data = JSON.parse(data);
         expect(data["MESSAGE"]).toBe("Hello, world!");
@@ -27,7 +27,7 @@ describe('sendLog', function () {
     var error = new Error("Unexpected something");
     error.stack = "...";
     $httpBackend.expectPOST(
-      '/log',
+      '/api/log',
       function (data) {
         data = JSON.parse(data);
         expect(data["MESSAGE"]).toBe("Unexpected something");
@@ -43,7 +43,7 @@ describe('sendLog', function () {
 
   it('should send log object', function () {
     $httpBackend.expectPOST(
-      '/log',
+      '/api/log',
       function (data) {
         data = JSON.parse(data);
         expect(data["MESSAGE"]).toBe("Hi");
@@ -59,7 +59,7 @@ describe('sendLog', function () {
 
   it('should send log object to string', function () {
     $httpBackend.expectPOST(
-      '/log',
+      '/api/log',
       function (data) {
         data = JSON.parse(data);
         expect(data["MESSAGE"]).toBe("1,2");
