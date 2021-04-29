@@ -1,6 +1,6 @@
 angular.module('auction').factory('$aside', ['$uibModal', '$document', function ($uibModal, $document) {
   var asideFactory = {
-    open: function(config) {
+    open: function (config) {
       var options = angular.extend({}, config);
       // check placement is set correct
       // set aside classes

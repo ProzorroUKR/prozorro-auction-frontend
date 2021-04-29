@@ -18,8 +18,11 @@ angular.module('auction').controller('AuctionController', [
      * @param {LanguageKey} langKey
      */
     var setDocumentLang = function (langKey) {
-      document.documentElement.lang = langKey;
-      document.querySelector('[http-equiv="Content-Language"]').setAttribute('content', localesMap[langKey]);
+      var element = document.querySelector('[http-equiv="Content-Language"]');
+      if (element) {
+        document.documentElement.lang = langKey;
+        element.setAttribute('content', localesMap[langKey]);
+      }
     }
 
     if (AuctionUtils.inIframe() && 'localhost' !== location.hostname) {
@@ -80,6 +83,7 @@ angular.module('auction').controller('AuctionController', [
     } else {
       $rootScope.lang = $translate.storage().get($translate.storageKey()) || $rootScope.lang;
     }
+
     setDocumentLang($rootScope.lang);
 
     /*      Time stopped events    */
@@ -88,8 +92,9 @@ angular.module('auction').controller('AuctionController', [
         if (!$rootScope.auction_not_started) {
           $rootScope.auction_not_started = $timeout(function () {
             if ($rootScope.auction_doc.current_stage === -1) {
-              growl.warning('Please wait for the auction start.', {ttl: 120000, disableCountDown: true});
-              $log.info({message: "Please wait for the auction start."});
+              var msg = 'Please wait for the auction start.';
+              growl.warning(msg, {ttl: 120000, disableCountDown: true});
+              $log.info({message: msg});
             }
           }, 10000);
         }
@@ -114,7 +119,7 @@ angular.module('auction').controller('AuctionController', [
         }
 
         $timeout(function () {
-            $rootScope.time_in_title = AuctionUtils.title_timer(event.targetScope);
+          $rootScope.time_in_title = AuctionUtils.title_timer(event.targetScope);
         }, 0);
 
         return;
@@ -331,8 +336,8 @@ angular.module('auction').controller('AuctionController', [
     };
     $rootScope.calculate_current_npv = function () {
       var contractDurationYears = $rootScope.form.contractDurationYears || 0,
-          contractDurationDays = $rootScope.form.contractDurationDays || 0,
-          yearlyPaymentsPercentage = $rootScope.form.yearlyPaymentsPercentage || 0;
+        contractDurationDays = $rootScope.form.contractDurationDays || 0,
+        yearlyPaymentsPercentage = $rootScope.form.yearlyPaymentsPercentage || 0;
       if ($rootScope.form.BidsForm.$valid) {
         $rootScope.current_npv = AuctionUtils.npv(
           parseInt(contractDurationYears.toFixed()),
@@ -393,7 +398,6 @@ angular.module('auction').controller('AuctionController', [
               'His proposal will be considered first, since it has been submitted earlier.'
           });
         }
-        ;
         $rootScope.form.active = true;
         $timeout(function () {
           $rootScope.form.active = false;
@@ -639,7 +643,7 @@ angular.module('auction').controller('AuctionController', [
                   $filter('translate')('Your browser is out of date, and this site may not work properly.') +
                   '<a style="color: rgb(234, 4, 4); text-decoration: underline;" href="http://browser-update.org/uk/update.html">' +
                   $filter('translate')('Learn how to update your browser.') + '</a>',
-                    {
+                  {
                     ttl: -1,
                     disableCountDown: true
                   }
@@ -676,7 +680,7 @@ angular.module('auction').controller('AuctionController', [
             $log.error({message: 'Not Found Error', error_data: response});
             $rootScope.document_not_found = true;
           } else {
-            $log.error({message: 'Changes Server Error', error_data: err});
+            $log.error({message: 'Changes Server Error', error_data: response});
             $rootScope.http_error_timeout = $rootScope.http_error_timeout * 2;
             $timeout(
               function () {
@@ -705,17 +709,21 @@ angular.module('auction').controller('AuctionController', [
 
       // Create WebSocket connection.
       var socket = new WebSocket(uri),
-          heartbeat_delay = 5000,
-          heartbeat_timeout = null,
-          heartbeats_missed = 0;
-      socket.addEventListener('open', function (event) {
+        heartbeat_delay = 5000,
+        heartbeat_timeout = null,
+        heartbeats_missed = 0;
+
+      socket.onopen = function (event) {
         if (heartbeat_timeout === null) {
           heartbeat_timeout = $timeout(function heartbeat() {
-            try {
-              heartbeats_missed++;
+            var check_heartbeats_missed = function () {
               if (heartbeats_missed >= 3) {
                 throw new Error("Too many missed heartbeats.");
               }
+            }
+            try {
+              heartbeats_missed++;
+              check_heartbeats_missed();
               socket.send("PONG");
               heartbeat_timeout = $timeout(heartbeat, heartbeat_delay);
             } catch (e) {
@@ -725,8 +733,9 @@ angular.module('auction').controller('AuctionController', [
             }
           }, heartbeat_delay);
         }
-      });
-      socket.addEventListener('message', function (event) {
+      };
+
+      socket.onmessage = function (event) {
         if (event.data === "PING") {
           heartbeats_missed = 0; // reset the counter for missed heartbeats
           return;
@@ -734,10 +743,12 @@ angular.module('auction').controller('AuctionController', [
         var json = JSON.parse(event.data);
         $rootScope.replace_document(json);
         $rootScope.restart_retries = AuctionConfig.restart_retries;
-      });
+      };
+
       socket.onerror = function (error) {
         console.error(error);
       };
+
       socket.onclose = function () {
         console.log("Close handler. Restart after a second");
         $timeout(function () {
@@ -757,7 +768,8 @@ angular.module('auction').controller('AuctionController', [
       };
     };
     $rootScope.check_authorization = function (on_finish) {
-      on_finish = on_finish || function () {};
+      on_finish = on_finish || function () {
+      };
 
       var start_anonymous_session = function () {
         $timeout(function () {  // doesn't work without timeout
@@ -897,7 +909,7 @@ angular.module('auction').controller('AuctionController', [
     $rootScope.get_annual_costs_reduction = function (bidder_id) {  // esco
       var initial_bids = $rootScope.auction_doc.initial_bids;
       for (var initial_bid in initial_bids) {
-        if(initial_bids.hasOwnProperty(initial_bid)) {
+        if (initial_bids.hasOwnProperty(initial_bid)) {
           if (bidder_id === initial_bids[initial_bid].bidder_id) {
             return initial_bids[initial_bid].annualCostsReduction;
           }
