@@ -1,8 +1,8 @@
 var auction_doc_id = 'test';
 beforeEach(module('auction'));
 
-describe('Unit: Testing Filter "formatnumber" - ', function() {
-  it('formatnumber should format positive numbers', inject(function($filter) {
+describe('Unit: Testing Filter "formatnumber" - ', function () {
+  it('formatnumber should format positive numbers', inject(function ($filter) {
     expect($filter('formatnumber')(100000)).toEqual('100 000');
     expect($filter('formatnumber')(10000)).toEqual('10 000');
     expect($filter('formatnumber')(1000)).toEqual('1 000');
@@ -11,7 +11,7 @@ describe('Unit: Testing Filter "formatnumber" - ', function() {
     expect($filter('formatnumber')(1)).toEqual('1');
   }));
 
-  it('formatnumber should format nagative numbers', inject(function($filter) {
+  it('formatnumber should format nagative numbers', inject(function ($filter) {
     expect($filter('formatnumber')(-100000)).toEqual('-100 000');
     expect($filter('formatnumber')(-10000)).toEqual('-10 000');
     expect($filter('formatnumber')(-1000)).toEqual('-1 000');
@@ -20,7 +20,7 @@ describe('Unit: Testing Filter "formatnumber" - ', function() {
     expect($filter('formatnumber')(-1)).toEqual('-1');
   }));
 
-  it('formatnumber should works with incorect values', inject(function($filter) {
+  it('formatnumber should works with incorect values', inject(function ($filter) {
     expect($filter('formatnumber')('string')).toEqual('');
     expect($filter('formatnumber')('')).toEqual($filter('number')('')); // '0' 
     expect($filter('formatnumber')({})).toEqual('');
@@ -30,9 +30,8 @@ describe('Unit: Testing Filter "formatnumber" - ', function() {
 });
 
 
-
-describe('Unit Testing: Filter "fraction" - ', function() {
-  it('floor should cut to the given precision', inject(function($filter) {
+describe('Unit Testing: Filter "fraction" - ', function () {
+  it('floor should cut to the given precision', inject(function ($filter) {
     expect($filter('fraction')(8546.998)).toEqual('8 547,00');
     expect($filter('fraction')(8547)).toEqual('8 547,00');
 
@@ -46,8 +45,8 @@ describe('Unit Testing: Filter "fraction" - ', function() {
   }));
 });
 
-describe('Unit Testing: Filter "floor" - ', function() {
-  it('floor should cut to the given precision', inject(function($filter) {
+describe('Unit Testing: Filter "floor" - ', function () {
+  it('floor should cut to the given precision', inject(function ($filter) {
     expect($filter('floor')(8546.99876, 4)).toEqual('8 546,9987');
     expect($filter('floor')(8546.998, 3)).toEqual('8 546,998');
     expect($filter('floor')(8546.998, 2)).toEqual('8 546,99');

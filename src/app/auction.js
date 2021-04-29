@@ -8,8 +8,8 @@ var appRequires = [
 ];
 
 var db = {},
-    bidder_id = "0",
-    db_url = db_url || (location.protocol + '//' + location.host + '/' + window.db_name ) || "";
+  bidder_id = "0",
+  db_url = db_url || (location.protocol + '//' + location.host + '/' + window.db_name) || "";
 
 
 angular.module('auction', appRequires)
@@ -17,4 +17,5 @@ angular.module('auction', appRequires)
     remote_db: db_url,
     restart_retries: 10,
     default_lang: 'uk',
-    debug: false })
+    debug: false
+  })

@@ -4,7 +4,7 @@ describe('auctionTest', function () {
 
   var controller, scope, AuctionUtils, rootScope;
 
-  beforeEach(inject(function(_$controller_, _$rootScope_, AuctionUtils){
+  beforeEach(inject(function (_$controller_, _$rootScope_, AuctionUtils) {
     scope = _$rootScope_.$new();
     rootScope = _$rootScope_;
     controller = _$controller_('AuctionController', {$scope: scope, AuctionUtils: AuctionUtils, $rootScope: rootScope});
@@ -26,11 +26,11 @@ describe('auctionTest', function () {
     let length = scope.alerts.length;
     scope.form.BidsForm = {};
     scope.form.BidsForm.$valid = true;
-    rootScope.minimal_bid = {amount:2};
+    rootScope.minimal_bid = {amount: 2};
     scope.post_bid(2);
 
     expect(scope.alerts.length).toEqual(length + 1);
-    expect(scope.alerts[0].msg && scope.alerts[0].type=='warning').toEqual(true);
+    expect(scope.alerts[0].msg && scope.alerts[0].type == 'warning').toEqual(true);
   });
 //$scope.edit_bid
   it('should be Defined', function () {
@@ -49,11 +49,11 @@ describe('auctionTest', function () {
   });
   it('should find max bid amount', function () {
     rootScope.bidder_id = '{}';
-    rootScope.auction_doc = {current_stage : 0};
-    rootScope.auction_doc.stages = [{amount:3}];
-    rootScope.auction_doc.minimalStep = {amount:1};
+    rootScope.auction_doc = {current_stage: 0};
+    rootScope.auction_doc.stages = [{amount: 3}];
+    rootScope.auction_doc.minimalStep = {amount: 1};
     expect(scope.max_bid_amount()).toBe(2);
-    
+
   });
 //$scope.calculate_minimal_bid_amount
   it('should be Defined', function () {
@@ -62,10 +62,10 @@ describe('auctionTest', function () {
   it('should find minimal bid', function () {
     rootScope.auction_doc = {};
     rootScope.auction_doc.stages = [];
-    rootScope.auction_doc.initial_bids = [{amount:1},{amount:2},{amount:3}];
+    rootScope.auction_doc.initial_bids = [{amount: 1}, {amount: 2}, {amount: 3}];
     scope.calculate_minimal_bid_amount();
     expect(scope.minimal_bid).toBeDefined(1);
-    scope.auction_doc.initial_bids = [{amount:100000},{amount:200000},{amount:300000},{amount:200000},{amount:300000},{amount:300000},{amount:200000},{amount:300000}];
+    scope.auction_doc.initial_bids = [{amount: 100000}, {amount: 200000}, {amount: 300000}, {amount: 200000}, {amount: 300000}, {amount: 300000}, {amount: 200000}, {amount: 300000}];
     expect(scope.minimal_bid).toBeDefined(100000);
   });
 //$scope.start_sync
@@ -89,7 +89,7 @@ describe('auctionTest', function () {
     expect(scope.calculate_rounds).toBeDefined();
   });
   it('should work correct', function () {
-    rootScope.auction_doc = {stages : [{type:'pause'},{type:'pause'},5,{type:'pause'},{type:'pause'},{type:'pause'}]};
+    rootScope.auction_doc = {stages: [{type: 'pause'}, {type: 'pause'}, 5, {type: 'pause'}, {type: 'pause'}, {type: 'pause'}]};
     scope.calculate_rounds();
     expect(scope.Rounds).toEqual([0, 1, 3, 4, 5]);
   });
@@ -130,26 +130,25 @@ describe('auctionTest', function () {
     expect(scope.form.bid).toBe(33);
   });
 
-/*//controller 'OffCanvasController'
-//$scope.allert
-  it('should be Defined', function () {
-    expect(scope.allert).toBeDefined();
-  });
-//$scope.ok
-  it('should be Defined', function () {
-    expect(scope.ok).toBeDefined();
-  });
-//$scope.cancel
-  it('should be Defined', function () {
-    expect(scope.cancel).toBeDefined();
-  });
-//$scope.post_bid
-  it('should be Defined', function () {
-    expect(scope.post_bid).toBeDefined();
-  });*/
+  /*//controller 'OffCanvasController'
+  //$scope.allert
+    it('should be Defined', function () {
+      expect(scope.allert).toBeDefined();
+    });
+  //$scope.ok
+    it('should be Defined', function () {
+      expect(scope.ok).toBeDefined();
+    });
+  //$scope.cancel
+    it('should be Defined', function () {
+      expect(scope.cancel).toBeDefined();
+    });
+  //$scope.post_bid
+    it('should be Defined', function () {
+      expect(scope.post_bid).toBeDefined();
+    });*/
 
 //TODO directive 
-
 
 
 });

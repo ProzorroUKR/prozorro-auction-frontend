@@ -1,8 +1,8 @@
 angular.module('auction').filter('floor', [function () {
-  return function(value, precision) {
+  return function (value, precision) {
     precision = precision || 0;
 
-    var format_function = function(val) {
+    var format_function = function (val) {
       formatted = math.format(Number(val), {
         notation: 'fixed',
         precision: precision
@@ -13,7 +13,7 @@ angular.module('auction').filter('floor', [function () {
     };
 
     if (!angular.isUndefined(value) && value !== "") {
-      if (!angular.isNumber(value)){
+      if (!angular.isNumber(value)) {
         value = math.eval(math.format(math.fraction(value)));
       }
       var precision_module = Math.pow(10, precision);
