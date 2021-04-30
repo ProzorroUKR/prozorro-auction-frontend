@@ -108,7 +108,7 @@ angular.module('auction').controller('AuctionController', [
     });
     /*      Time tick events    */
     $rootScope.$on('timer-tick', function (event) {
-      const date = new Date();
+      const date = AuctionUtils.calculate_server_time($rootScope.last_sync_delta);
 
       if ($rootScope.auction_doc && event.targetScope.timerid === 1) {
         const infoTimer = $rootScope.info_timer || {};
@@ -184,7 +184,6 @@ angular.module('auction').controller('AuctionController', [
         }
       }).then(function (data) {
         var date_server = new Date(data.headers().date);
-
         $rootScope.last_sync_delta = new Date() - date_server;
 
         $rootScope.update_info_timer(date_server, true);
@@ -192,36 +191,66 @@ angular.module('auction').controller('AuctionController', [
 
         if ($rootScope.auction_doc.current_stage === -1) {
           if ($rootScope.progress_timer.countdown_seconds < 900) {
-            $rootScope.start_changes_feed = true;
+              $rootScope.start_changes();
           } else {
             $timeout(function () {
+              $rootScope.start_changes();
               $rootScope.follow_login = true;
-              $rootScope.start_changes_feed = true;
             }, ($rootScope.progress_timer.countdown_seconds - 900) * 1000);
           }
+        } else {
+          $rootScope.start_changes();
         }
       }, function () {
-        $log.error("get_current_server_time error");
+        $log.error("Error while getting server time");
       });
     };
 
-    $rootScope.sync_times_with_server_last_sync = function () {
-      if ($rootScope.last_sync_delta) {
-        var date = new Date();
-        date.setSeconds(date.getSeconds() + $rootScope.last_sync_delta / 1000)
-        $rootScope.update_info_timer(date);
-        $rootScope.update_progress_timer(date);
+    $rootScope.start_changes = function () {
+      if (!$rootScope.start_changes_feed) {
+        $rootScope.correct_times_with_server_last_sync();
+        $rootScope.check_system_time();
+      }
+      $rootScope.start_changes_feed = true;
+    }
+
+    $rootScope.correct_times_with_server_last_sync = function () {
+      var sync_delay = 10 * 1000;
+      if (angular.isDefined($rootScope.auction_doc)) {
+        if ($rootScope.last_sync_delta) {
+          var date = AuctionUtils.calculate_server_time($rootScope.last_sync_delta);
+          $rootScope.update_info_timer(date);
+          $rootScope.update_progress_timer(date);
+        }
+
+        if ($rootScope.auction_doc.current_stage !== ($rootScope.auction_doc.stages.length - 1)) {
+          $timeout($rootScope.correct_times_with_server_last_sync, sync_delay);
+        }
+      } else {
+        $timeout($rootScope.correct_times_with_server_last_sync, sync_delay);
       }
     }
 
-    $rootScope.sync_times_with_server_last_sync_repeat = function () {
-      var sync_delay = 10 * 1000
-      $timeout(function () {
-        if ($rootScope.auction_doc.current_stage !== ($rootScope.auction_doc.stages.length - 1)) {
-          $rootScope.sync_times_with_server_last_sync();
-          $rootScope.sync_times_with_server_last_sync_repeat();
+    $rootScope.check_system_time = function () {
+      var check_delay = 1000;
+      if (angular.isDefined($rootScope.auction_doc)) {
+        var old_time = $rootScope.check_system_time.old_time || new Date(),
+          new_time = new Date(),
+          time_diff = new_time - old_time,
+          max_time_diff = 5 * 1000;
+
+        $rootScope.check_system_time.old_time = new_time;
+
+        if (Math.abs(time_diff) >= max_time_diff) {
+          $rootScope.sync_times_with_server();
         }
-      }, sync_delay);
+
+        if ($rootScope.auction_doc.current_stage !== ($rootScope.auction_doc.stages.length - 1)) {
+          $timeout($rootScope.check_system_time, check_delay);
+        }
+      } else {
+        $timeout($rootScope.check_system_time, check_delay);
+      }
     }
 
     $rootScope.update_info_timer = function (date, reset) {
@@ -666,7 +695,6 @@ angular.module('auction').controller('AuctionController', [
               });
             } else {
               $rootScope.start_sync();
-              $rootScope.sync_times_with_server_last_sync_repeat();
             }
           } else {
             $rootScope.replace_document(doc);
