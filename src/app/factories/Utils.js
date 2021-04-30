@@ -45,6 +45,12 @@ angular.module('auction').factory('AuctionUtils', [
       return titleText.join('');
     }
 
+    function calculate_server_time(server_time_delta) {
+      var date = new Date();
+      date.setTime(date.getTime() - server_time_delta);
+      return date;
+    }
+
     function prepare_info_timer_data(current_time, auction, bidder_id, Rounds) {
       var i;
 
@@ -81,8 +87,8 @@ angular.module('auction').factory('AuctionUtils', [
           'msg': 'Auction has not started and will be rescheduled'
         };
       } else {
-        if ((auction.stages[auction.current_stage].type || '') == "pre_announcement") {
-          var client_time = new Date();
+        if ((auction.stages[auction.current_stage].type || '') === "pre_announcement") {
+          var client_time = current_time;
           var ends_time = new Date(auction.stages[auction.current_stage].start);
 
           if (client_time < ends_time) {
@@ -97,8 +103,8 @@ angular.module('auction').factory('AuctionUtils', [
           };
         }
 
-        if ((auction.stages[auction.current_stage].type || '') == "announcement") {
-          var client_time = new Date();
+        if ((auction.stages[auction.current_stage].type || '') === "announcement") {
+          var client_time = current_time;
           var ends_time = new Date(auction.stages[auction.current_stage - 1].start);
 
           if (client_time < ends_time) {
@@ -140,7 +146,7 @@ angular.module('auction').factory('AuctionUtils', [
         }
 
         for (i in Rounds) {
-          if (auction.current_stage == Rounds[i]) {
+          if (auction.current_stage === Rounds[i]) {
             return {
               'countdown': ((new Date(auction.stages[auction.current_stage + 1].start) - current_time) / 1000) + Math.random(),
               'start_time': false,
@@ -169,7 +175,7 @@ angular.module('auction').factory('AuctionUtils', [
 
       if (
         (auction.current_stage &&
-          ((auction.stages[auction.current_stage] || {}).type || '').indexOf('announcement') != -1)
+          ((auction.stages[auction.current_stage] || {}).type || '').indexOf('announcement') !== -1)
         || (auction.current_stage === -100) || (auction.current_stage === -101)
       ) {
         return {
@@ -212,7 +218,7 @@ angular.module('auction').factory('AuctionUtils', [
       var vars = query.split('&');
       for (var i = 0; i < vars.length; i++) {
         var pair = vars[i].split('=');
-        if (decodeURIComponent(pair[0]) == 'bidder_id') {
+        if (decodeURIComponent(pair[0]) === 'bidder_id') {
           return decodeURIComponent(pair[1]);
         }
       }
@@ -229,7 +235,7 @@ angular.module('auction').factory('AuctionUtils', [
 
     // Get round data
     function get_round_data(pause_index, auction_doc, Rounds) {
-      if (pause_index == -1) {
+      if (pause_index === -1) {
         return {
           'type': 'waiting'
         };
@@ -246,7 +252,7 @@ angular.module('auction').factory('AuctionUtils', [
             'type': 'round',
             'data': parseInt(i)
           };
-        } else if (pause_index == Rounds[i]) {
+        } else if (pause_index === Rounds[i]) {
           return {
             'type': 'pause',
             'data': [(parseInt(i)).toString(), (parseInt(i) + 1).toString(),]
@@ -403,7 +409,7 @@ angular.module('auction').factory('AuctionUtils', [
         return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
       });
       return uuid;
-    };
+    }
 
     function UnsupportedBrowser() {
       var parser = new UAParser();
@@ -552,5 +558,6 @@ angular.module('auction').factory('AuctionUtils', [
       'detectIE': detectIE,
       'UnsupportedBrowser': UnsupportedBrowser,
       'npv': npv,
+      'calculate_server_time': calculate_server_time
     };
   }]);
