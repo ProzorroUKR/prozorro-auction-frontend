@@ -560,7 +560,7 @@ angular.module('auction').controller('AuctionController', [
               ) - math.fraction($rootScope.auction_doc.minimalStep.amount);
             }
 
-          } else if ($rootScope.bidder_coeficient && $rootScope.is_lcc) {
+          } else if ($rootScope.bidder_non_price_cost && $rootScope.is_lcc) {
 
             if ($rootScope.is_esco) {
               amount = 0;
@@ -966,7 +966,7 @@ angular.module('auction').controller('AuctionController', [
             new_form_bid = (math.fix((
               math.fraction($rootScope.form.full_price) * $rootScope.bidder_coeficient
             ) * 100)) / 100;
-          } else {
+          } else if ($rootScope.is_lcc) {
             new_form_bid = (math.fix((
               math.fraction($rootScope.form.full_price) - $rootScope.bidder_non_price_cost
             ) * 100)) / 100;
