@@ -53,6 +53,8 @@ describe('Unit Testing: Filter "floor" - ', function () {
     expect($filter('floor')(8546.998, 1)).toEqual('8 546,9');
     expect($filter('floor')(8546.998, 0)).toEqual('8 546');
     expect($filter('floor')(8546.998)).toEqual('8 546');
+    expect($filter('floor')(8546.9, 2)).toEqual('8 546,90');
+    expect($filter('floor')(19.4, 2)).toEqual('19,40');
 
     expect($filter('floor')("2", 2)).toEqual('2,00');
     expect($filter('floor')("2000.3", 2)).toEqual('2 000,30');
