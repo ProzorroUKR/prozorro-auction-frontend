@@ -19,6 +19,11 @@ angular.module('auction').config([
         $delegate.context = {};
 
         var originalDebug = $delegate.debug;
+        var originalInfo = $delegate.info;
+        var originalLog = $delegate.log;
+        var originalWarn = $delegate.warn;
+        var originalError = $delegate.error;
+
         $delegate.debug = function decoratedDebug(msg) {
           if (AuctionConfig.debug) {
             var sendLog = $injector.get('sendLog');
@@ -27,34 +32,31 @@ angular.module('auction').config([
           originalDebug.apply($delegate, arguments);
         };
 
-        var originalInfo = $delegate.info;
         $delegate.info = function decoratedInfo(msg) {
           var sendLog = $injector.get('sendLog');
           sendLog(msg, "INFO", $delegate.context);
           originalInfo.apply($delegate, arguments);
         };
-        $delegate.info.logs = originalInfo.logs;  // angular-mocks attribute
 
-        var originalLog = $delegate.log;
         $delegate.log = function decoratedLog(msg) {
           var sendLog = $injector.get('sendLog');
           sendLog(msg, "INFO", $delegate.context);
           originalLog.apply($delegate, arguments);
         };
 
-        var originalWarn = $delegate.warn;
         $delegate.warn = function decoratedWarn(msg) {
           var sendLog = $injector.get('sendLog');
           sendLog(msg, "WARNING", $delegate.context);
           originalWarn.apply($delegate, arguments);
         };
 
-        var originalError = $delegate.error;
         $delegate.error = function decoratedError(msg) {
           var sendLog = $injector.get('sendLog');
           sendLog(msg, "ERROR", $delegate.context);
           originalError.apply($delegate, arguments);
         };
+
+        $delegate.info.logs = originalInfo.logs;  // angular-mocks attribute
         $delegate.error.logs = originalError.logs;  // angular-mocks attribute
 
         return $delegate;

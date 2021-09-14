@@ -320,6 +320,7 @@ angular.module('auction').controller('AuctionController', [
     var too_low_bid_msg_id = "too_low_bid_msg_id";
     $rootScope.show_too_low_bid_warning = function (value) {
       var prev_value = 0;
+
       if (angular.isObject($rootScope.auction_doc)) {
         var current_stage_obj = $rootScope.auction_doc.stages[$rootScope.auction_doc.current_stage];
         if (angular.isObject(current_stage_obj) && (current_stage_obj.amount || current_stage_obj.amount_features)) {
@@ -336,10 +337,15 @@ angular.module('auction').controller('AuctionController', [
           }
         }
       }
+
+      var too_low_bid_ratio = prev_value !== 0 ? (100 - value / prev_value * 100).toFixed(2) : NaN;
+
+      $log.info({message: 'Bid may be decrease by ' + too_low_bid_ratio + '%'});
+
       $rootScope.alerts.push({
         type: 'danger',
         msg: 'You are going to decrease your bid by {{too_low_bid_ratio}}%. Are you sure?',
-        msg_vars: {too_low_bid_ratio: prev_value !== 0 ? (100 - value / prev_value * 100).toFixed(2) : NaN}
+        msg_vars: {too_low_bid_ratio: too_low_bid_ratio},
       });
     }
     $rootScope.prevent_sending_too_low_bid = function (value) {
