@@ -11,7 +11,24 @@ test:
     - apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.7/main/ nodejs=10.16.3-r0
     - apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.7/community/ yarn=1.16.0-r0
     - apk upgrade
-    - apk add chromium
+    - apk --update \
+      add build-base \
+      git \
+      tzdata \
+      nodejs \
+      nodejs-npm \
+      bash \
+      curl \
+      yarn \
+      gzip \
+      imagemagick \
+      imagemagick-dev \
+      imagemagick-libs \
+      ncurses \
+      less \
+      dpkg=1.19.7-r0 \
+      chromium \
+      chromium-chromedriver
     - npm install
   script:
     - npm run test:ci
