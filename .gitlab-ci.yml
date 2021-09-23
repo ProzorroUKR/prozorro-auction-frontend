@@ -11,8 +11,8 @@ test:
     - apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.7/main/ nodejs=8.9.3-r1
     - apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.7/community/ yarn=1.3.2-r0
     - apk upgrade
-    - apk --update \
-      add build-base \
+    - apk --no-cache add \
+      build-base \
       git \
       tzdata \
       nodejs \
