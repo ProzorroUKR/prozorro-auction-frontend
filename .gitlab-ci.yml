@@ -3,14 +3,15 @@ stages:
   - build
 
 test:
-  image: docker-registry.prozorro.gov.ua/docker/images/node:15.9-alpine3.13
+  image: docker-registry.prozorro.gov.ua/docker/images/node:10-alpine3.7.3
   stage: test
   tags:
     - kube-dev
   before_script:
-    - wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | apt-key add -
-    - sh -c 'echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" >> /etc/apt/sources.list.d/google.list'
-    - apt-get update && apt-get install -y google-chrome-stable
+    - apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.7/main/ nodejs=10.16.3-r0
+    - apk add  --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.7/community/ yarn=1.16.0-r0
+    - apk upgrade
+    - apk add chromium
     - npm install
   script:
     - npm run test:ci
