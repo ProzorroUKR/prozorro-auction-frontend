@@ -332,6 +332,14 @@ angular.module('auction').controller('AuctionController', [
             if ($rootScope.bidder_non_price_cost) {
               prev_value = math.fraction(current_stage_obj.amount_weighted) - $rootScope.bidder_non_price_cost;
             }
+          } else if ($rootScope.is_mixed) {
+            prev_value = math.fraction(current_stage_obj.amount_weighted)
+            if ($rootScope.bidder_addition) {
+              prev_value = prev_value - $rootScope.bidder_addition;
+            }
+            if ($rootScope.bidder_denominator) {
+               prev_value = prev_value * $rootScope.bidder_denominator;
+            }
           } else {
             prev_value = math.fraction(current_stage_obj.amount);
           }
@@ -576,6 +584,14 @@ angular.module('auction').controller('AuctionController', [
               ) - math.fraction($rootScope.auction_doc.minimalStep.amount);
             }
 
+          } else if (($rootScope.bidder_addition || $rootScope.bidder_denominator) && $rootScope.is_mixed) {
+            if ($rootScope.is_esco) {
+              amount = 0;
+            } else {
+              amount = (
+                  (math.fraction(current_stage_obj.amount_weighted) - $rootScope.bidder_addition) * $rootScope.bidder_denominator
+              ) - math.fraction($rootScope.auction_doc.minimalStep.amount);
+            }
           } else {
 
             if ($rootScope.is_esco) {
@@ -604,6 +620,8 @@ angular.module('auction').controller('AuctionController', [
         if ($rootScope.is_meat) {
           sort_by = 'amount_features';
         } else if ($rootScope.is_lcc) {
+          sort_by = 'amount_weighted';
+        } else if ($rootScope.is_mixed) {
           sort_by = 'amount_weighted';
         } else {
           sort_by = 'amount';
@@ -637,6 +655,8 @@ angular.module('auction').controller('AuctionController', [
               var diff = math.fraction(a.amount_features) - math.fraction(b.amount_features);
             } else if ($rootScope.is_lcc) {
               var diff = math.fraction(a.amount_weighted) - math.fraction(b.amount_weighted);
+            } else if ($rootScope.is_mixed) {
+              var diff = math.fraction(a.amount_weighted) - math.fraction(b.amount_weighted)
             } else {
               var diff = a.amount - b.amount;
             }
@@ -690,6 +710,7 @@ angular.module('auction').controller('AuctionController', [
 
             $rootScope.auction_type = doc.auction_type || 'default'
             $rootScope.is_default = $rootScope.auction_type === 'default';
+            $rootScope.is_mixed = $rootScope.auction_type === 'mixed';
             $rootScope.is_meat = $rootScope.auction_type === 'meat';
             $rootScope.is_lcc = $rootScope.auction_type === 'lcc';
 
@@ -843,6 +864,14 @@ angular.module('auction').controller('AuctionController', [
               $rootScope.bidder_non_price_cost = math.fraction(response.data.non_price_cost);
               $log.info({message: "Get non_price_cost " + $rootScope.bidder_non_price_cost});
             }
+            if ('addition' in response.data) {
+              $rootScope.bidder_addition = math.fraction(response.data.addition)
+              $log.info({message: "Get addition " + $rootScope.bidder_addition})
+            }
+            if ('denominator' in response.data) {
+              $rootScope.bidder_denominator = math.fraction(response.data.denominator)
+              $log.info({message: "Get denominator: " + $rootScope.bidder_denominator})
+            }
             if (response.data.amount) {
               $rootScope.form.bid = response.data.amount;
               $rootScope.allow_bidding = false;
@@ -936,7 +965,10 @@ angular.module('auction').controller('AuctionController', [
           new_full_price = form_bid / $rootScope.bidder_coeficient;
         } else if ($rootScope.is_lcc) {
           new_full_price = form_bid + $rootScope.bidder_non_price_cost;
+        } else if ($rootScope.is_mixed) {
+          new_full_price = (form_bid / $rootScope.bidder_denominator) + $rootScope.bidder_addition;
         }
+
       }
       $rootScope.form.full_price = new_full_price;
     };
@@ -976,6 +1008,10 @@ angular.module('auction').controller('AuctionController', [
             new_form_bid = (math.fix((
               math.fraction($rootScope.form.full_price) - $rootScope.bidder_non_price_cost
             ) * 100)) / 100;
+          } else if ($rootScope.is_mixed) {
+            new_form_bid = (math.fix((
+                math.fraction(($rootScope.form.full_price - $rootScope.bidder_addition) * $rootScope.bidder_denominator)
+            ) * 100 )) / 100;
           }
         }
         $rootScope.form.bid = new_form_bid;
@@ -997,6 +1033,8 @@ angular.module('auction').controller('AuctionController', [
         amount: stage_obj.amount,
         amount_features: stage_obj.amount_features,
         amount_weighted: stage_obj.amount_weighted,
+        denominator: stage_obj.denominator,
+        addition: stage_obj.addition,
         coeficient: stage_obj.coeficient,
         non_price_cost: stage_obj.non_price_cost,
         is_current_bidder: is_current_bidder,
