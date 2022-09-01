@@ -640,6 +640,8 @@ angular.module('auction').controller('AuctionController', [
               diff = math.fraction(math.eval(a.amount_features)) - math.fraction(math.eval(b.amount_features));
             } else if ($rootScope.is_lcc) {
               diff = math.fraction(math.eval(a.amount_weighted)) - math.fraction(math.eval(b.amount_weighted));
+            } else if ($rootScope.is_mixed) {
+              diff = math.fraction(math.eval(a.amount_weighted)) - math.fraction(math.eval(b.amount_weighted));
             } else {
               diff = math.eval(a.amount) - math.eval(b.amount);
             }
