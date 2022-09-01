@@ -16,7 +16,7 @@
                 <span ng-if="stage_info.is_current_bidder && (is_meat || is_lcc || is_mixed) && !stage_info.is_finished">
 
                     <span class="label-price normalized-price"
-                          ng-if="is_meat || is_mixed"
+                          ng-if="is_meat"
                           ng-class="{'font-weight-bold': stage_info.is_changed}">
                         <span class="price-type" translate>
                             Normalized Price
@@ -33,6 +33,19 @@
                           ng-class="{'font-weight-bold': stage_info.is_changed}">
                         <span class="price-type" translate>
                             Weighted value
+                        </span>
+                        {{ stage_info.amount_weighted|fraction }}
+                        <span class="amount-currency"
+                              ng-if="!angular.isUndefined(stage_info.amount_weighted)">
+                            {{ auction_doc.minimalStep.currency|translate }}
+                        </span>
+                    </span>
+
+                    <span class="label-price normalized-price"
+                          ng-if="is_mixed"
+                          ng-class="{'font-weight-bold': stage_info.is_changed}">
+                        <span class="price-type" translate>
+                            Normalized Price
                         </span>
                         {{ stage_info.amount_weighted|fraction }}
                         <span class="amount-currency"

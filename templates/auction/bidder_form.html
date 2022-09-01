@@ -191,11 +191,11 @@
                                 <div class="normalized-price-group col-md-3 col-sm-3 col-xs-11"
                                      ng-class="{'not-allow-bidding': !allow_bidding}"
                                      ng-if="is_mixed">
-                                    <span ng-if="(bidder_addition && bidder_denominator) && !$root.normilized" translate>
-                                        Weighted Value
+                                    <span ng-if="(bidder_addition || bidder_denominator) && !$root.normilized" translate>
+                                        Normalized Price
                                     </span>
                                     <span ng-init="max_bid_amount()" class="max_bid_amount"
-                                          ng-if="(bidder_addition && bidder_denominator) && !$root.normilized">
+                                          ng-if="(bidder_addition || bidder_denominator) && !$root.normilized">
                                         <span>{{ calculated_max_bid_amount/bidder_denominator+bidder_addition|floor:2 }} </span>
                                         {{'or lower'|translate}}
                                     </span>
