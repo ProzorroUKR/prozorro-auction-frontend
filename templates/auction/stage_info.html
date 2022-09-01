@@ -16,7 +16,7 @@
                 <span ng-if="stage_info.is_current_bidder && (is_meat || is_lcc || is_mixed) && !stage_info.is_finished">
 
                     <span class="label-price normalized-price"
-                          ng-if="is_meat"
+                          ng-if="is_meat || is_mixed"
                           ng-class="{'font-weight-bold': stage_info.is_changed}">
                         <span class="price-type" translate>
                             Normalized Price
@@ -29,7 +29,7 @@
                     </span>
 
                     <span class="label-price normalized-price"
-                          ng-if="is_lcc || is_mixed"
+                          ng-if="is_lcc"
                           ng-class="{'font-weight-bold': stage_info.is_changed}">
                         <span class="price-type" translate>
                             Weighted value
@@ -111,7 +111,7 @@
                 <span ng-if="!stage_info.is_current_bidder && is_mixed && !stage_info.is_finished">
                     <span ng-class="{'font-weight-bold': stage_info.is_changed}">
                         <span ng-if="stage_info.amount_weighted" class="price-type" translate>
-                            Weighted value
+                            Normalized Price
                         </span>
                         {{ stage_info.amount_weighted|fraction }}
                         <span class="amount-currency"
@@ -160,7 +160,9 @@
                         {{ stage_info.amount|fraction }}
                         <span class="amount-currency" ng-if="!angular.isUndefined(stage_info.amount)">
                             {{ auction_doc.minimalStep.currency|translate }}
-                        </span> / {{ stage_info.denominator|fraction }} + {{ stage_info.addition|fraction }}
+                        </span>
+                        <span ng-if="stage_info.denominator > 1"> / {{ stage_info.denominator|fraction }}</span>
+                        <span ng-if="stage_info.addition > 0"> + {{ stage_info.addition|fraction }}</span>
                     </span>
                 </span>
 
