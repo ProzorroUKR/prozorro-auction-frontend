@@ -72,17 +72,39 @@
                                 </div>
                             </div>
 
+                            <div class="price-inform-block" ng-if="is_mixed">
+                                <div class="col-md-5 col-sm-5 full-price-group">
+                                    <div translate>
+                                        Full Price
+                                    </div>
+                                    <span ng-init="max_bid_amount()" class="max_bid_amount">
+                                        <span>{{ calculated_max_bid_amount|floor:2 }} </span>
+                                        {{'or lower'|translate}}
+                                    </span>
+                                </div>
+
+                                <div class="col-md-5 col-sm-5 normalized-price-group">
+                                    <div translate>
+                                        Normalized Price
+                                    </div>
+                                    <span ng-init="max_bid_amount()" class="max_bid_amount">
+                                        <span>{{ calculated_max_bid_amount/bidder_denominator+bidder_addition|floor:2 }}</span>
+                                        {{ 'or lower'|translate }}
+                                    </span>
+                                </div>
+                            </div>
+
                             <div class="input-group main-price-block">
 
                                 <div class="full-price-group"
-                                     ng-class="{'col-md-3 col-sm-3 col-xs-11': is_meat || is_lcc, 'col-md-8 col-sm-8': is_default}">
+                                     ng-class="{'col-md-3 col-sm-3 col-xs-11': is_meat || is_lcc || is_mixed, 'col-md-8 col-sm-8': is_default}">
                                     <span translate ng-if="is_meat">
                                         Full Price
                                     </span>
                                     <span translate ng-if="is_lcc">
                                         Acquisition costs
                                     </span>
-                                    <span ng-init="max_bid_amount()" class="max_bid_amount" ng-if="is_meat || is_lcc">
+                                    <span ng-init="max_bid_amount()" class="max_bid_amount" ng-if="is_meat || is_lcc || is_mixed">
                                         <span>{{ calculated_max_bid_amount|floor:2 }} </span>
                                         {{'or lower'|translate}}
                                     </span>
@@ -111,6 +133,26 @@
                                          ng-if="bidder_non_price_cost && !$root.normilized">
                                         {{bidder_non_price_cost| fraction}}
                                     </span>
+                                </div>
+
+                                <div class="bidder-coeficient-wrap col-md-2 col-sm-2 col-xs-11"
+                                     ng-if="is_mixed">
+                                    <div ng-if="bidder_denominator > 1 && !$root.normilized">
+                                        <span translate>
+                                            Bidder Coefficient
+                                        </span>
+                                        <span id="bid-amount-description">
+                                             {{bidder_denominator | fraction}}
+                                        </span>
+                                    </div>
+                                    <div ng-if="bidder_addition > 0 && !$root.normilized">
+                                        <span translate>
+                                            Other costs
+                                        </span>:
+                                        <span id="bid-amount-description">
+                                            {{bidder_addition | fraction}}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div class="normalized-price-group col-md-3 col-sm-3 col-xs-11"
@@ -144,6 +186,23 @@
                                     <input id="bid-amount-full-price" id="full_price" ng-disabled="!allow_bidding"
                                            ng-change="calculate_full_price_temp()" min="0" class="form-control"
                                            name="full_price" ng-model="$root.form.full_price" required format>
+                                </div>
+
+                                <div class="normalized-price-group col-md-3 col-sm-3 col-xs-11"
+                                     ng-class="{'not-allow-bidding': !allow_bidding}"
+                                     ng-if="is_mixed">
+                                    <span ng-if="(bidder_addition || bidder_denominator) && !$root.normilized" translate>
+                                        Normalized Price
+                                    </span>
+                                    <span ng-init="max_bid_amount()" class="max_bid_amount"
+                                          ng-if="(bidder_addition || bidder_denominator) && !$root.normilized">
+                                        <span>{{ calculated_max_bid_amount/bidder_denominator+bidder_addition|floor:2 }} </span>
+                                        {{'or lower'|translate}}
+                                    </span>
+                                    <input id="bid-amount-full-price" id="full_price" ng-disabled="!allow_bidding"
+                                           ng-change="calculate_full_price_temp()" min="0" class="form-control"
+                                           name="full_price" ng-model="$root.form.full_price" required
+                                           format>
                                 </div>
 
                                 <div class="input-group-btn col-md-4 col-sm-4 pull-right">
@@ -194,29 +253,29 @@
                             <h3>{{ 'Your proposal' | translate}}:</h3>
 
                             <span class="bids-form-info small">
-                                    <span class="bid-info-block">
-                                        <span ng-init="max_bid_amount()" class="bid-info-value">
-                                            <span id="max_bid_amount_price">
-                                                {{ calculated_max_bid_amount|fraction }}
-                                            </span>
-                                            {{'or higher'|translate}}<span ng-if="is_meat">;</span>
+                                <span class="bid-info-block">
+                                    <span ng-init="max_bid_amount()" class="bid-info-value">
+                                        <span id="max_bid_amount_price">
+                                            {{ calculated_max_bid_amount|fraction }}
                                         </span>
-                                    </span>
-                                    <span class="bid-info-block" ng-if="is_meat">
-                                        <abbr title="{{ 'Current energy efficiency value of energy service contract' | translate }}">
-                                            {{ 'Current EIESC' | translate }}
-                                        </abbr> <span id="current-npv">{{ current_npv | fraction }}</span>;
-                                    </span>
-                                    <span ng-if="is_meat">
-                                        {{ 'Bidder Coefficient' | translate }}
-                                        <span id="bid-amount-description"
-                                              ng-if="bidder_coeficient && !$root.normilized"
-                                              uib-tooltip="x {{bidder_coeficient| fraction_string}}"
-                                              tooltip-trigger="focus">
-                                            {{bidder_coeficient| fraction}}
-                                        </span>
+                                        {{'or higher'|translate}}<span ng-if="is_meat">;</span>
                                     </span>
                                 </span>
+                                <span class="bid-info-block" ng-if="is_meat">
+                                    <abbr title="{{ 'Current energy efficiency value of energy service contract' | translate }}">
+                                        {{ 'Current EIESC' | translate }}
+                                    </abbr> <span id="current-npv">{{ current_npv | fraction }}</span>;
+                                </span>
+                                <span ng-if="is_meat">
+                                    {{ 'Bidder Coefficient' | translate }}
+                                    <span id="bid-amount-description"
+                                          ng-if="bidder_coeficient && !$root.normilized"
+                                          uib-tooltip="x {{bidder_coeficient| fraction_string}}"
+                                          tooltip-trigger="focus">
+                                        {{bidder_coeficient| fraction}}
+                                    </span>
+                                </span>
+                            </span>
                             <div class="row form-inline">
                                 <h4 class="col-md-8 col-xs-8 col-sm-8 xs-max-hidden bids-form-header-label" translate>
                                     Contract duration</h4>
